@@ -1,5 +1,5 @@
 <section class="relative h-[500px] flex items-center justify-center text-center">
-    <img src="/images/hero-kuliner.jpg" alt="Kuliner"
+    <img src="{{ asset('images/hero-kuliner.webp') }}" alt="Kuliner"
         class="absolute inset-0 w-full h-full object-cover" />
     <div class="absolute inset-0 bg-[#111827]/60"></div>
     <div class="relative z-10 max-w-2xl px-6">

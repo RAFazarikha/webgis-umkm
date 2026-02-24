@@ -22,10 +22,10 @@
         <thead class="bg-gray-50">
             <tr>
                 <th class="p-4 text-left">Nama</th>
-                <th>Kategori</th>
-                <th>Kecamatan</th>
-                <th>Cluster</th>
-                <th>Aksi</th>
+                <th class="text-left">Kategori</th>
+                <th class="text-left">Kecamatan</th>
+                <th class="text-left">Cluster</th>
+                <th class="text-left">Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -33,7 +33,7 @@
             <tr class="border-t">
                 <td class="p-4">{{ $umkm->nama_usaha }}</td>
                 <td>{{ $umkm->kategori }}</td>
-                <td>{{ $umkm->kecamatan }}</td>
+                <td>{{ $umkm->subdistrict->name ?? '-' }}</td>
                 <td>{{ $umkm->cluster_id ?? '-' }}</td>
                 <td class="space-x-2">
                     <a href="{{ route('admin.umkm.edit',$umkm) }}"

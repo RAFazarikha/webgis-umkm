@@ -6,13 +6,13 @@
         <label class="block text-sm font-medium">Nama Usaha</label>
         <input type="text" name="nama_usaha"
             value="{{ old('nama_usaha', $umkm->nama_usaha ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2">
+            class="w-full border border-gray-200 shadow-sm rounded-lg px-4 py-2">
     </div>
 
     <div>
         <label>Kategori</label>
         <select name="kategori"
-            class="w-full border rounded-lg px-4 py-2">
+            class="w-full border border-gray-200 shadow-sm rounded-lg px-4 py-2">
             <option value="makanan_berat">Makanan Berat</option>
             <option value="camilan_oleh_oleh">Camilan / Oleh-oleh</option>
             <option value="makanan_khas">Makanan Khas</option>
@@ -24,28 +24,37 @@
         <label>Alamat</label>
         <input type="text" name="alamat"
             value="{{ old('alamat', $umkm->alamat ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2">
+            class="w-full border border-gray-200 shadow-sm rounded-lg px-4 py-2">
     </div>
 
     <div>
         <label>Kecamatan</label>
-        <input type="text" name="kecamatan"
-            value="{{ old('kecamatan', $umkm->kecamatan ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2">
+        <select name="subdistrict_id" class="w-full border border-gray-200 shadow-sm rounded-lg px-4 py-2">
+            <option value="" disabled {{ old('subdistrict_id', $umkm->subdistrict_id ?? '') == '' ? 'selected' : '' }}>
+                -- Pilih Kecamatan --
+            </option>
+
+            @foreach($kecamatan as $k)
+                <option value="{{ $k->id }}"
+                    {{ old('subdistrict_id', $umkm->subdistrict_id ?? '') == $k->id ? 'selected' : '' }}>
+                    {{ $k->name }}
+                </option>
+            @endforeach
+        </select>
     </div>
 
     <div>
         <label>Latitude</label>
         <input type="text" name="latitude"
             value="{{ old('latitude', $umkm->latitude ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2">
+            class="w-full border border-gray-200 shadow-sm rounded-lg px-4 py-2">
     </div>
 
     <div>
         <label>Longitude</label>
         <input type="text" name="longitude"
             value="{{ old('longitude', $umkm->longitude ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2">
+            class="w-full border border-gray-200 shadow-sm rounded-lg px-4 py-2">
     </div>
 
 </div>

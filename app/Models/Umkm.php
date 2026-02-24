@@ -10,7 +10,7 @@ class Umkm extends Model
         'nama_usaha',
         'kategori',
         'alamat',
-        'kecamatan',
+        'subdistrict_id',
         'jam_operasional',
         'no_kontak',
         'rating',
@@ -20,4 +20,10 @@ class Umkm extends Model
         'cluster_id',
         'is_noise',
     ];
+
+    public function subdistrict()
+    {
+        return $this->belongsTo(Subdistrict::class, 'subdistrict_id', 'id');
+    }
 }
+

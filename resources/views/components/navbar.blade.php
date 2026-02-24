@@ -1,7 +1,7 @@
 <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-gray-200"></div>
+            <img src="{{ asset('logos/favicon-32x32.png') }}" alt="Logo" class="" />
             <span class="text-xl font-semibold text-[#111827]">Jelajah Rasa</span>
         </div>
         <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
@@ -9,6 +9,9 @@
             <a href="/map" class="hover:text-[#D92D20]">Map</a>
             <a href="/kuliner" class="hover:text-[#D92D20]">Kuliner</a>
             <a href="/tentang" class="hover:text-[#D92D20]">Tentang</a>
+            @auth
+                <a href="/admin/dashboard" class="hover:text-[#D92D20]">Dashboard</a>
+            @endauth
         </div>
         <div class="hidden md:block">
             <input type="text" placeholder="Search in site"

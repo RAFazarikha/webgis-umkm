@@ -32,7 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     ->group(function () {
 
         Route::get('/dashboard', function () {
-            return view('dashboard');
+            return view('admin/dashboard');
         })->name('dashboard');
 
         Route::resource('umkm', UmkmController::class);

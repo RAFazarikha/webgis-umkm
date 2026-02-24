@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Subdistrict;
 use App\Models\Umkm;
 use Illuminate\Http\Request;
 
@@ -10,13 +11,15 @@ class UmkmController extends Controller
 {
     public function index()
     {
-        $umkms = Umkm::latest()->paginate(10);
+        $umkms = Umkm::with('subdistrict')->latest()->paginate(10);
         return view('admin.umkm.index', compact('umkms'));
     }
 
     public function create()
     {
-        return view('admin.umkm.create');
+        $kecamatan = Subdistrict::all();
+
+        return view('admin.umkm.create', compact('kecamatan'));
     }
 
     public function store(Request $request)
@@ -25,7 +28,7 @@ class UmkmController extends Controller
             'nama_usaha' => 'required|string|max:255',
             'kategori' => 'required',
             'alamat' => 'required',
-            'kecamatan' => 'required',
+            'subdistrict_id' => 'required|numeric',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
         ]);
@@ -43,7 +46,9 @@ class UmkmController extends Controller
 
     public function edit(Umkm $umkm)
     {
-        return view('admin.umkm.edit', compact('umkm'));
+        $kecamatan = Subdistrict::all();
+
+        return view('admin.umkm.edit', compact('umkm', 'kecamatan'));
     }
 
     public function update(Request $request, Umkm $umkm)
@@ -52,7 +57,7 @@ class UmkmController extends Controller
             'nama_usaha' => 'required|string|max:255',
             'kategori' => 'required',
             'alamat' => 'required',
-            'kecamatan' => 'required',
+            'subdistrict_id' => 'required|numeric',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
         ]);
