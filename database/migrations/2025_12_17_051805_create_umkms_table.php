@@ -25,8 +25,11 @@ return new class extends Migration
 
             // Informasi Lokasi & Operasional
             $table->string('alamat');
+            $table->string('kecamatan');
             $table->string('jam_operasional')->nullable();
             $table->string('no_kontak')->nullable();
+            $table->double('rating')->nullable();
+            $table->integer('jumlah_ulasan')->nullable();
 
             // Data Spasial (Input utama DBSCAN)
             $table->double('latitude');
