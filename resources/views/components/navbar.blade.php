@@ -5,10 +5,10 @@
             <span class="text-xl font-semibold text-[#111827]">Jelajah Rasa</span>
         </div>
         <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-            <a href="/" class="hover:text-[#D92D20]">Beranda</a>
-            <a href="/map" class="hover:text-[#D92D20]">Map</a>
-            <a href="/kuliner" class="hover:text-[#D92D20]">Kuliner</a>
-            <a href="/tentang" class="hover:text-[#D92D20]">Tentang</a>
+            <a href="/" class="{{ Route::is('home') ? 'text-[#D92D20]' : 'hover:text-[#D92D20]' }}">Beranda</a>
+            <a href="/map" class="{{ Route::is('map') ? 'text-[#D92D20]' : 'hover:text-[#D92D20]' }}">Map</a>
+            <a href="/kuliner" class="{{ Route::is('kuliner') ? 'text-[#D92D20]' : 'hover:text-[#D92D20]' }}">Kuliner</a>
+            <a href="/tentang" class="{{ Route::is('tentang') ? 'text-[#D92D20]' : 'hover:text-[#D92D20]' }}">Tentang</a>
             @auth
                 <a href="/admin/dashboard" class="hover:text-[#D92D20]">Dashboard</a>
             @endauth

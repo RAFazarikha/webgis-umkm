@@ -24,12 +24,12 @@ class UmkmController extends Controller
         return view('admin.umkm.create', compact('kecamatan'));
     }
 
-    public function show($id)
-    {
-        $umkm = Umkm::findOrFail($id);
+    // public function show($id)
+    // {
+    //     $umkm = Umkm::findOrFail($id);
 
-        return view('admin.umkm.show', compact('umkm'));
-    }
+    //     return view('admin.umkm.show', compact('umkm'));
+    // }
 
     public function store(Request $request)
     {
@@ -177,6 +177,7 @@ class UmkmController extends Controller
             });
 
             // Kirim ke Flask API
+            /** @var \Illuminate\Http\Client\Response $response */
             $response = Http::timeout(120)->post(
                 config('services.flask.url') . '/cluster/api',
                 [

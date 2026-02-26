@@ -1,28 +1,17 @@
 <?php
 
 use App\Http\Controllers\Admin\UmkmController;
+use App\Http\Controllers\MainController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('home');
-});
+Route::get('/', [MainController::class, 'home'])->name('home');
 
-Route::get('/map', function () {
-    return view('map');
-});
+Route::get('/map', [MainController::class, 'map'])->name('map');
 
-Route::get('/kuliner', function () {
-    return view('kuliner');
-});
+Route::get('/kuliner', [MainController::class, 'kuliner'])->name('kuliner');
 
-Route::get('/tentang', function () {
-    return view('tentang');
-});
-
-Route::get('/kuliner/views', function () {
-    return view('kuliner/views');
-});
+Route::get('/tentang', [MainController::class, 'tentang'])->name('tentang');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
