@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'flask' => [
+        'url' => env('FLASK_CLUSTER_URL'),
+    ],
+
 ];

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Subdistrict;
 use App\Models\Umkm;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class UmkmController extends Controller
 {
@@ -22,6 +24,13 @@ class UmkmController extends Controller
         return view('admin.umkm.create', compact('kecamatan'));
     }
 
+    public function show($id)
+    {
+        $umkm = Umkm::findOrFail($id);
+
+        return view('admin.umkm.show', compact('umkm'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -35,7 +44,6 @@ class UmkmController extends Controller
 
         Umkm::create($validated + $request->only([
             'jam_operasional',
-            'no_kontak',
             'rating',
             'jumlah_ulasan'
         ]));
@@ -64,7 +72,6 @@ class UmkmController extends Controller
 
         $umkm->update($validated + $request->only([
             'jam_operasional',
-            'no_kontak',
             'rating',
             'jumlah_ulasan'
         ]));
@@ -77,5 +84,153 @@ class UmkmController extends Controller
     {
         $umkm->delete();
         return back()->with('success', 'UMKM berhasil dihapus');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,txt|max:2048'
+        ]);
+
+        $file = $request->file('file');
+
+        if (($handle = fopen($file->getRealPath(), 'r')) !== false) {
+
+            $header = fgetcsv($handle, 1000, ';');
+
+            $expectedHeader = [
+                'nama_usaha',
+                'kategori',
+                'alamat',
+                'subdistrict_id',
+                'jam_buka',
+                'jam_tutup',
+                'rating',
+                'jumlah_ulasan',
+                'latitude',
+                'longitude',
+                'cluster_id',
+                'is_noise'
+            ];
+
+            // Validasi header
+            if ($header !== $expectedHeader) {
+                return back()->with('error', 'Format header CSV tidak sesuai.');
+            }
+
+            $data = [];
+
+            while (($row = fgetcsv($handle, 1000, ';')) !== false) {
+
+                $data[] = [
+                    'nama_usaha'      => $row[0],
+                    'kategori'        => $row[1],
+                    'alamat'          => $row[2],
+                    'subdistrict_id'  => (int) $row[3],
+                    'jam_operasional' => ($row[4] && $row[5]) ? $row[4] . ' - ' . $row[5] : null,
+                    'rating'          => $row[6] !== '' ? (float) $row[6] : null,
+                    'jumlah_ulasan'   => $row[7] !== '' ? (int) $row[7] : null,
+                    'latitude'        => (float) $row[8],
+                    'longitude'       => (float) $row[9],
+                    'cluster_id'      => $row[10] !== '' ? (int) $row[10] : null,
+                    'is_noise'        => isset($row[11]) ? (bool) $row[11] : false,
+                    'created_at'      => now(),
+                    'updated_at'      => now(),
+                ];
+            }
+
+            fclose($handle);
+
+            // Insert batch
+            Umkm::insert($data);
+
+            return redirect()->route('admin.umkm.index')
+                ->with('success', 'Data CSV berhasil diimport.');
+        }
+
+        return back()->with('error', 'File tidak dapat dibaca.');
+    }
+
+    public function runClustering(Request $request)
+    {
+        $eps = $request->input('eps', 0.7);
+        $minSamples = $request->input('min_samples', 10);
+
+        try {
+
+            // Ambil data dari database
+            $umkms = Umkm::with('subdistrict')->get();
+
+            if ($umkms->isEmpty()) {
+                return back()->with('error', 'Data UMKM kosong.');
+            }
+
+            // Format data untuk dikirim ke Flask
+            $payloadData = $umkms->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'latitude' => (float) $item->latitude,
+                    'longitude' => (float) $item->longitude,
+                    'kecamatan' => $item->subdistrict->name ?? null,
+                    'kategori_kuliner' => $item->kategori
+                ];
+            });
+
+            // Kirim ke Flask API
+            $response = Http::timeout(120)->post(
+                config('services.flask.url') . '/cluster/api',
+                [
+                    'data' => $payloadData,
+                    'eps' => $eps,
+                    'min_samples' => $minSamples,
+                    'kecamatan' => $request->kecamatan,
+                    'kategori_kuliner' => $request->kategori_kuliner
+                ]
+            );
+
+            if ($response->failed()) {
+                return back()->with(
+                    'error',
+                    'Gagal menghubungi Flask API. Status: ' . $response->status()
+                );
+            }
+
+            $result = $response->json();
+
+            if (!isset($result['data'])) {
+                return back()->with('error', 'Format response dari Flask tidak valid.');
+            }
+
+            DB::beginTransaction();
+
+            foreach ($result['data'] as $row) {
+
+                $cluster = $row['cluster'];
+
+                Umkm::where('id', $row['id'])->update([
+                    'cluster_id' => $cluster == -1 ? null : $cluster,
+                    'is_noise' => $cluster == -1
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('admin.umkm.index')
+                ->with('success',
+                    'Clustering berhasil dijalankan. ' .
+                    'Cluster: ' . ($result['jumlah_cluster'] ?? 0) .
+                    ' | Noise: ' . ($result['jumlah_noise'] ?? 0)
+                );
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()->with(
+                'error',
+                'Terjadi kesalahan saat proses clustering: ' . $e->getMessage()
+            );
+        }
     }
 }

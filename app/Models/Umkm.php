@@ -12,7 +12,6 @@ class Umkm extends Model
         'alamat',
         'subdistrict_id',
         'jam_operasional',
-        'no_kontak',
         'rating',
         'jumlah_ulasan',
         'latitude',

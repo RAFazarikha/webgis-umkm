@@ -24,12 +24,11 @@ return new class extends Migration
             ]);
 
             // Informasi Lokasi & Operasional
-            $table->string('alamat');
+            $table->string('alamat', 1000);
             $table->foreignId('subdistrict_id')
                 ->constrained('subdistricts')
                 ->onDelete('cascade');
             $table->string('jam_operasional')->nullable();
-            $table->string('no_kontak')->nullable();
             $table->double('rating')->nullable();
             $table->integer('jumlah_ulasan')->nullable();
 

@@ -36,6 +36,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('dashboard');
 
         Route::resource('umkm', UmkmController::class);
+
+        Route::post('/umkm/import', [UmkmController::class, 'import'])->name('umkm.import');
+
+        Route::post('/umkm/clustering', [UmkmController::class, 'runClustering'])->name('umkm.clustering');
     });
 
 });

@@ -10,6 +10,16 @@
     $avgRating = round(\App\Models\Umkm::avg('rating'),1);
 @endphp
 
+@if(session('success'))
+    <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+        {{ session('success') }}
+    </div>
+@elseif(session('error'))
+    <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+        {{ session('error') }}
+    </div>
+@endif
+
 <div class="mb-10">
     <h1 class="text-3xl font-bold text-[#111827] mb-2">
         Dashboard Admin
@@ -64,6 +74,13 @@
     </h2>
 
     <div class="flex gap-4">
+
+        <form action="{{ route('admin.umkm.clustering') }}" method="POST">
+            @csrf
+            <button type="submit" class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-[#D92D20] transition">
+                Clusterisasi UMKM
+            </button>
+        </form>
 
         <a href="{{ route('admin.umkm.index') }}"
            class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-[#F59E0B] transition">
