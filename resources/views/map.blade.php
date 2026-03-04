@@ -50,7 +50,7 @@
     <div id="map" class="w-full h-[500px] rounded-2xl shadow-md border border-gray-200"></div>
 
     <!-- Sidebar Wrapper -->
-    <div x-data="sidebarHandler()" x-cloak>
+    <div x-data="sidebarHandler()" x-cloak class="z-[999]">
 
         <!-- Backdrop -->
         <div x-show="open"
@@ -142,40 +142,38 @@
         });
 
         const locations = [
+            @foreach($umkms as $umkm)
             {
-                name: 'Kaldu Kokot',
-                lat: -7.015,
-                lng: 113.866,
-                district: 'Sumenep',
-                category: 'Makanan Khas',
-                description: 'Kaldu kokot khas madura dengan kuah gurih.',
-                address: 'Jl. Trunojoyo No.10',
-                open_hours: '08.00 - 20.00',
-                image: '/images/kaldu.jpg',
-                detail_url: '/kuliner/1'
+                lat: {{ $umkm->latitude }},
+                lng: {{ $umkm->longitude }},
+                name: "{{ $umkm->nama_usaha }}",
+                category: "{{ $umkm->kategori }}",
+                district: "{{ $umkm->subdistrict->name }}",
+                address: "{{ $umkm->alamat }}",
+                open_hours: "{{ $umkm->jam_operasional ?? '-' }}",
+                cluster: "{{ $umkm->cluster_id }}",
+                detail_url: "{{ route('kuliner.view', $umkm->id) }}"
             },
-            {
-                name: 'Sate Madura',
-                lat: -7.01,
-                lng: 113.85,
-                district: 'Sumenep',
-                category: 'Makanan Berat',
-                description: 'Sate ayam dengan bumbu kacang khas.',
-                address: 'Jl. Diponegoro No.5',
-                open_hours: '16.00 - 23.00',
-                image: '/images/sate.jpg',
-                detail_url: '/kuliner/2'
-            }
+            @endforeach
         ];
 
         locations.forEach(loc => {
-            L.marker([loc.lat, loc.lng], { icon: redIcon })
-                .addTo(map)
-                .on('click', function () {
-                    window.dispatchEvent(new CustomEvent('open-sidebar', {
-                        detail: loc
-                    }));
-                });
+
+            L.circleMarker([loc.lat, loc.lng], {
+                radius: 3,
+                fillColor: getClusterColor(loc.cluster),
+                color: "#ffffff",
+                weight: 2,
+                opacity: 0,
+                fillOpacity: 0.9
+            })
+            .addTo(map)
+            .on('click', function () {
+                window.dispatchEvent(new CustomEvent('open-sidebar', {
+                    detail: loc
+                }));
+            });
+
         });
     });
 
@@ -214,6 +212,20 @@
                 this.open = false;
             }
         }
+    }
+
+    function getClusterColor(cluster) {
+
+        const colors = [
+            "#ef4444","#3b82f6","#22c55e","#f59e0b","#8b5cf6",
+            "#ec4899","#14b8a6","#eab308","#6366f1","#10b981",
+            "#f97316","#06b6d4","#a855f7","#84cc16","#f43f5e",
+            "#0ea5e9","#d946ef","#65a30d","#fb923c","#4f46e5",
+            "#059669","#dc2626","#9333ea","#16a34a","#0284c7",
+            "#be123c","#7c3aed","#15803d","#0f766e","#9a3412"
+        ];
+
+        return colors[cluster] ?? "#6b7280";
     }
 </script>
 

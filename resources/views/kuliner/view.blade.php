@@ -1,61 +1,73 @@
 @extends('layouts.app')
-@section('title', $culinary->name . ' - Jelajah Rasa')
+@section('title', $umkm->name . ' - Jelajah Rasa')
 @section('content')
 
 <section class="max-w-7xl mx-auto px-6 py-12">
 
     <!-- Breadcrumb -->
-    <div class="mb-6 text-sm text-gray-500">
+    {{-- <div class="mb-6 text-sm text-gray-500">
         <a href="/" class="hover:text-[#D92D20]">Beranda</a>
         <span class="mx-2">/</span>
         <a href="/kuliner" class="hover:text-[#D92D20]">Kuliner</a>
         <span class="mx-2">/</span>
-        <span class="text-[#111827] font-medium">{{ $culinary->name }}</span>
-    </div>
+        <span class="text-[#111827] font-medium">{{ $umkm->name }}</span>
+    </div> --}}
 
     <div class="grid md:grid-cols-2 gap-12">
         <!-- Image Gallery -->
-        <div>
+        {{-- <div>
             <div class="w-full h-96 rounded-2xl overflow-hidden shadow-md mb-4">
-                <img src="{{ $culinary->image_url ?? '/images/placeholder.jpg' }}"
-                     alt="{{ $culinary->name }}"
-                     class="w-full h-full object-cover hover:scale-105 transition duration-500" />
+                <img src="{{ $umkm->image_url ?? '/images/placeholder.jpg' }}"
+                    alt="{{ $umkm->nama_usaha }}"
+                    class="w-full h-full object-cover hover:scale-105 transition duration-500" />
             </div>
-        </div>
+        </div> --}}
 
         <!-- Detail Info -->
         <div>
-            <h1 class="text-4xl font-bold text-[#111827] mb-4">
-                {{ $culinary->name }}
+            <h1 class="text-4xl font-bold text-[#111827] mb-4 capitalize">
+                {{ $umkm->nama_usaha }}
             </h1>
 
             <div class="flex gap-3 flex-wrap mb-6">
+
+                @if ($umkm->kategori == 'makanan_khas')
+                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">
+                        Makanan Khas
+                    </span>
+                @elseif ($umkm->kategori == 'makanan_berat')
+                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">
+                        Makanan Berat
+                    </span>
+                @elseif ($umkm->kategori == 'minuman')
+                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">
+                        Minuman
+                    </span>
+                @else
+                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">
+                        Camilan/Oleh-oleh
+                    </span>
+                @endif
+
                 <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">
-                    {{ $culinary->district }}
-                </span>
-                <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">
-                    {{ $culinary->category }}
+                    {{ $umkm->subdistrict->name }}
                 </span>
             </div>
 
             <p class="text-gray-600 leading-relaxed mb-6">
-                {{ $culinary->description }}
+                {{ $umkm->alamat }}
             </p>
 
             <div class="space-y-4 text-sm">
                 <div class="flex items-center gap-3">
-                    <span class="font-semibold text-[#111827]">Alamat:</span>
-                    <span class="text-gray-600">{{ $culinary->address }}</span>
-                </div>
-                <div class="flex items-center gap-3">
                     <span class="font-semibold text-[#111827]">Jam Operasional:</span>
-                    <span class="text-gray-600">{{ $culinary->open_hours }}</span>
+                    <span class="text-gray-600">{{ $umkm->jam_operasional }}</span>
                 </div>
             </div>
 
             <!-- Action Buttons -->
             <div class="mt-8 flex gap-4">
-                <a href="{{ route('map') }}?lat={{ $culinary->latitude }}&lng={{ $culinary->longitude }}"
+                <a href="{{ route('map') }}?lat={{ $umkm->latitude }}&lng={{ $umkm->longitude }}"
                    class="px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition">
                     Lihat di Peta
                 </a>
@@ -82,8 +94,8 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const lat = {{ $culinary->latitude ?? -7.0049 }};
-        const lng = {{ $culinary->longitude ?? 113.8595 }};
+        const lat = {{ $umkm->latitude ?? -7.0049 }};
+        const lng = {{ $umkm->longitude ?? 113.8595 }};
 
         const map = L.map('detailMap').setView([lat, lng], 15);
 
@@ -102,7 +114,7 @@
 
         L.marker([lat, lng], { icon: redIcon })
             .addTo(map)
-            .bindPopup(`<strong>{{ $culinary->name }}</strong>`)
+            .bindPopup(`<strong class="capitalize">{{ $umkm->nama_usaha }}</strong>`)
             .openPopup();
     });
 </script>

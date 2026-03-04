@@ -2,7 +2,7 @@
 @section('title', 'Kuliner - Jelajah Rasa')
 @section('content')
 
-<section class="max-w-7xl mx-auto px-6 py-12">
+<section class="max-w-7xl mx-auto md:mx-32 px-6 py-12">
     <div class="text-center mb-12">
         <h1 class="text-4xl font-bold text-[#111827] mb-4">Ragam Kuliner Sumenep</h1>
     </div>
@@ -35,29 +35,55 @@
 
     <!-- Culinary List -->
     <div class="space-y-6">
-        @for($i = 0; $i < 5; $i++)
+        @foreach ($umkms as $umkm)
         <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex gap-6">
-            <div class="w-32 h-32 bg-gray-200 rounded-xl flex-shrink-0"></div>
+            <a href="{{ route('kuliner.view', $umkm->id) }}">
+            <div class="w-32 h-32 bg-gray-200 rounded-xl flex-shrink-0">
+                @if ($umkm->kategori == 'makanan_khas')
+                    <img class="object-cover rounded-lg" src="{{ asset('images/makanan-khas.webp') }}" alt="">
+                @elseif ($umkm->kategori == 'makanan_berat')
+                    <img class="object-cover rounded-lg" src="{{ asset('images/makanan-berat.webp') }}" alt="">
+                @elseif ($umkm->kategori == 'minuman')
+                    <img class="object-cover rounded-lg" src="{{ asset('images/minuman.webp') }}" alt="">
+                @else
+                <img class="object-cover rounded-lg" src="{{ asset('images/camilan.webp') }}" alt="">
+                @endif
+            </div>
+            </a>
             <div class="flex-1">
-                <h3 class="text-xl font-semibold text-[#111827] mb-2">Kaldu Kokot</h3>
-                <p class="text-gray-500 mb-3">The kaldu kokot in town.</p>
+                <a href="{{ route('kuliner.view', $umkm->id) }}" class="text-xl font-semibold text-[#111827] mb-2 capitalize">{{ $umkm->nama_usaha }}</a>
+                <p class="text-gray-500 mb-3">{{ $umkm->alamat }}</p>
                 <div class="flex gap-3 flex-wrap">
-                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Sumenep</span>
-                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Makanan Khas</span>
+                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#D92D20]">Rating : {{ $umkm->rating ?? "-" }}</span>
+
+                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#D92D20]">Jam Operasional : {{ $umkm->jam_operasional ?? "-" }}</span>
+
+                    @if ($umkm->kategori == 'makanan_khas')
+                        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Makanan Khas</span>
+                    @elseif ($umkm->kategori == 'makanan_berat')
+                        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Makanan Berat</span>
+                    @elseif ($umkm->kategori == 'minuman')
+                        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Minuman</span>
+                    @else
+                        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Camilan/Oleh-oleh</span>
+                    @endif
+
+                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">{{ $umkm->subdistrict->name }}</span>
                 </div>
             </div>
         </div>
-        @endfor
+        @endforeach
     </div>
 
     <!-- Pagination (UI Ready) -->
-    <div class="mt-12 flex justify-center">
-        <nav class="flex items-center gap-2">
+    <div class="mt-12">
+        {{-- <nav class="flex items-center gap-2">
             <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-100">Prev</button>
             <button class="px-4 py-2 bg-[#D92D20] text-white rounded-lg text-sm">1</button>
             <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-100">2</button>
             <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-100">Next</button>
-        </nav>
+        </nav> --}}
+        {{ $umkms->links() }}
     </div>
 </section>
 

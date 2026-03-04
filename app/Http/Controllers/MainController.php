@@ -16,16 +16,26 @@ class MainController extends Controller
 
     public function map()
     {
-        return view('map');
+        $umkms = Umkm::with('subdistrict')->get();
+
+        return view('map', compact('umkms'));
     }
 
     public function kuliner()
     {
-        return view('kuliner');
+        $umkms = Umkm::with('subdistrict')->latest()->paginate(10);
+
+        return view('kuliner', compact('umkms'));
     }
 
     public function tentang()
     {
         return view('tentang');
+    }
+
+    public function view($id)
+    {
+        $umkm = Umkm::with('subdistrict')->findOrFail($id);
+        return view('kuliner.view', compact('umkm'));
     }
 }
