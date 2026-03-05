@@ -36,10 +36,6 @@ return new class extends Migration
             $table->double('latitude');
             $table->double('longitude');
 
-            // Hasil Clustering DBSCAN
-            $table->integer('cluster_id')->nullable();
-            $table->boolean('is_noise')->default(false);
-
             $table->timestamps();
         });
     }

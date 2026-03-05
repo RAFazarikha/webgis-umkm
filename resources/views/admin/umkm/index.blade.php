@@ -34,14 +34,14 @@
                 <td class="p-4">{{ $umkm->nama_usaha }}</td>
                 <td>{{ $umkm->kategori }}</td>
                 <td>{{ $umkm->subdistrict->name ?? '-' }}</td>
-                <td>{{ $umkm->cluster_id ?? '-' }}</td>
+                <td>{{ $umkm->clusterResultNone->cluster ?? '-' }}</td>
                 <td class="space-x-2">
                     <a href="{{ route('admin.umkm.edit',$umkm) }}"
-                       class="text-blue-600">Edit</a>
+                        class="text-blue-600">Edit</a>
 
                     <form action="{{ route('admin.umkm.destroy',$umkm) }}"
-                          method="POST"
-                          class="inline">
+                            method="POST"
+                            class="inline">
                         @csrf
                         @method('DELETE')
                         <button class="text-red-600">

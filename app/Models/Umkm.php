@@ -16,13 +16,16 @@ class Umkm extends Model
         'jumlah_ulasan',
         'latitude',
         'longitude',
-        'cluster_id',
-        'is_noise',
     ];
 
     public function subdistrict()
     {
         return $this->belongsTo(Subdistrict::class, 'subdistrict_id', 'id');
+    }
+
+    public function clusterResultNone()
+    {
+        return $this->hasOne(ClusterResult::class, 'umkm_id', 'id')->where('filter', 'none');
     }
 }
 

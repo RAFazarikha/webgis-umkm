@@ -5,8 +5,8 @@
 
 @php
     $totalUmkm = \App\Models\Umkm::count();
-    $totalCluster = \App\Models\Umkm::whereNotNull('cluster_id')->distinct('cluster_id')->count('cluster_id');
-    $totalNoise = \App\Models\Umkm::where('is_noise', true)->count();
+    $totalCluster = \App\Models\ClusterResult::whereNotNull('cluster')->where('filter', 'none')->distinct('cluster')->count('cluster');
+    $totalNoise = \App\Models\ClusterResult::where('is_noise', true)->where('filter', 'none')->count();
     $avgRating = round(\App\Models\Umkm::avg('rating'),1);
 @endphp
 

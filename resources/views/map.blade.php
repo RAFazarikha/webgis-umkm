@@ -47,7 +47,7 @@
     </div>
 
     <!-- Map -->
-    <div id="map" class="w-full h-[500px] rounded-2xl shadow-md border border-gray-200"></div>
+    <div id="map" class="w-full h-[500px] rounded-2xl shadow-md border border-gray-200 z-10"></div>
 
     <!-- Sidebar Wrapper -->
     <div x-data="sidebarHandler()" x-cloak class="z-[999]">
@@ -72,7 +72,7 @@
 
             <!-- Header -->
             <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                <h2 class="text-xl font-bold text-[#111827]" x-text="data.name"></h2>
+                <h2 class="text-xl font-bold text-[#111827] capitalize" x-text="data.name"></h2>
                 <button @click="close()" class="text-gray-400 hover:text-[#D92D20] text-2xl">
                     &times;
                 </button>
@@ -151,7 +151,7 @@
                 district: "{{ $umkm->subdistrict->name }}",
                 address: "{{ $umkm->alamat }}",
                 open_hours: "{{ $umkm->jam_operasional ?? '-' }}",
-                cluster: "{{ $umkm->cluster_id }}",
+                cluster: "{{ $umkm->clusterResultNone->cluster ?? 'Noise' }}",
                 detail_url: "{{ route('kuliner.view', $umkm->id) }}"
             },
             @endforeach
@@ -168,6 +168,14 @@
                 fillOpacity: 0.9
             })
             .addTo(map)
+            .bindTooltip(
+                `<b class="capitalize">${loc.name}</b><br>Cluster: ${loc.cluster}`,
+                {
+                    direction: "top",
+                    offset: [0, -5],
+                    opacity: 0.9
+                }
+            )
             .on('click', function () {
                 window.dispatchEvent(new CustomEvent('open-sidebar', {
                     detail: loc

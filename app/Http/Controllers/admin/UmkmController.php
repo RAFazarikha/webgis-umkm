@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClusterResult;
 use App\Models\Subdistrict;
 use App\Models\Umkm;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ class UmkmController extends Controller
 {
     public function index()
     {
-        $umkms = Umkm::with('subdistrict')->latest()->paginate(10);
+        $umkms = Umkm::with('subdistrict')->with('clusterResultNone')->latest()->paginate(10);
         return view('admin.umkm.index', compact('umkms'));
     }
 
@@ -132,8 +133,6 @@ class UmkmController extends Controller
                     'jumlah_ulasan'   => $row[7] !== '' ? (int) $row[7] : null,
                     'latitude'        => (float) $row[8],
                     'longitude'       => (float) $row[9],
-                    'cluster_id'      => $row[10] !== '' ? (int) $row[10] : null,
-                    'is_noise'        => isset($row[11]) ? (bool) $row[11] : false,
                     'created_at'      => now(),
                     'updated_at'      => now(),
                 ];
@@ -208,10 +207,16 @@ class UmkmController extends Controller
 
                 $cluster = $row['cluster'];
 
-                Umkm::where('id', $row['id'])->update([
-                    'cluster_id' => $cluster == -1 ? null : $cluster,
-                    'is_noise' => $cluster == -1
-                ]);
+                ClusterResult::updateOrCreate(
+                    [
+                        'umkm_id' => $row['id'],
+                        'filter' => 'none'
+                    ],
+                    [
+                        'cluster' => $cluster == -1 ? null : $cluster,
+                        'is_noise' => $cluster == -1
+                    ]
+                );
             }
 
             DB::commit();
