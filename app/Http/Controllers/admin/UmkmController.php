@@ -18,6 +18,24 @@ class UmkmController extends Controller
         return view('admin.umkm.index', compact('umkms'));
     }
 
+    public function dashboard()
+    {
+        $totalUmkm = Umkm::count();
+        $totalCluster = ClusterResult::whereNotNull('cluster')->where('filter', 'none')->distinct('cluster')->count('cluster');
+        $totalNoise = ClusterResult::where('is_noise', true)->where('filter', 'none')->count();
+        $avgRating = round(Umkm::avg('rating'), 1);
+
+        $kecamatans = Subdistrict::withCount('umkms')->get();
+
+        return view('admin.dashboard', compact(
+            'totalUmkm',
+            'totalCluster',
+            'totalNoise',
+            'avgRating',
+            'kecamatans'
+        ));
+    }
+
     public function create()
     {
         $kecamatan = Subdistrict::all();
@@ -152,30 +170,32 @@ class UmkmController extends Controller
 
     public function runClustering(Request $request)
     {
+        $request->validate([
+            'eps' => 'nullable|numeric|min:0',
+            'min_samples' => 'nullable|integer|min:1'
+        ]);
+
         $eps = $request->input('eps', 0.7);
         $minSamples = $request->input('min_samples', 10);
 
         try {
 
-            // Ambil data dari database
             $umkms = Umkm::with('subdistrict')->get();
 
             if ($umkms->isEmpty()) {
                 return back()->with('error', 'Data UMKM kosong.');
             }
 
-            // Format data untuk dikirim ke Flask
             $payloadData = $umkms->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'latitude' => (float) $item->latitude,
                     'longitude' => (float) $item->longitude,
-                    'kecamatan' => $item->subdistrict->name ?? null,
+                    'kecamatan' => optional($item->subdistrict)->name,
                     'kategori_kuliner' => $item->kategori
                 ];
-            });
+            })->values();
 
-            // Kirim ke Flask API
             /** @var \Illuminate\Http\Client\Response $response */
             $response = Http::timeout(120)->post(
                 config('services.flask.url') . '/cluster/api',
@@ -188,7 +208,7 @@ class UmkmController extends Controller
                 ]
             );
 
-            if ($response->failed()) {
+            if (!$response->successful()) {
                 return back()->with(
                     'error',
                     'Gagal menghubungi Flask API. Status: ' . $response->status()
@@ -197,13 +217,15 @@ class UmkmController extends Controller
 
             $result = $response->json();
 
-            if (!isset($result['data'])) {
-                return back()->with('error', 'Format response dari Flask tidak valid.');
+            if (($result['status'] ?? null) !== 'success') {
+                return back()->with('error', $result['message'] ?? 'Clustering gagal.');
             }
+
+            $data = $result['data'];
 
             DB::beginTransaction();
 
-            foreach ($result['data'] as $row) {
+            foreach ($data['data'] as $row) {
 
                 $cluster = $row['cluster'];
 
@@ -214,7 +236,10 @@ class UmkmController extends Controller
                     ],
                     [
                         'cluster' => $cluster == -1 ? null : $cluster,
-                        'is_noise' => $cluster == -1
+                        'is_noise' => $cluster == -1,
+                        'eps' => $eps,
+                        'min_samples' => $minSamples,
+                        'silhouette_score' => $data['silhouette_coefficient'] ?? null
                     ]
                 );
             }
@@ -223,10 +248,11 @@ class UmkmController extends Controller
 
             return redirect()
                 ->route('admin.umkm.index')
-                ->with('success',
+                ->with(
+                    'success',
                     'Clustering berhasil dijalankan. ' .
-                    'Cluster: ' . ($result['jumlah_cluster'] ?? 0) .
-                    ' | Noise: ' . ($result['jumlah_noise'] ?? 0)
+                    'Cluster: ' . ($data['jumlah_cluster'] ?? 0) .
+                    ' | Noise: ' . ($data['jumlah_noise'] ?? 0)
                 );
 
         } catch (\Exception $e) {
@@ -242,45 +268,50 @@ class UmkmController extends Controller
 
     public function gridSearch(Request $request)
     {
-        // Ambil data UMKM dari database
         $umkms = Umkm::with('subdistrict')->get();
 
         if ($umkms->isEmpty()) {
             return back()->with('error', 'Data UMKM kosong.');
         }
 
-        // Format data sesuai kebutuhan API Python
         $payloadData = $umkms->map(function ($item) {
             return [
                 "id" => $item->id,
                 "name" => $item->nama_usaha,
-                "latitude" => $item->latitude,
-                "longitude" => $item->longitude,
-                "kecamatan" => $item->subdistrict->name ?? null,
+                "latitude" => (float) $item->latitude,
+                "longitude" => (float) $item->longitude,
+                "kecamatan" => optional($item->subdistrict)->name,
                 "kategori_kuliner" => $item->kategori
             ];
-        });
+        })->values();
 
-        // Kirim request ke API Flask
         /** @var \Illuminate\Http\Client\Response $response */
-        $response = Http::post(config('services.flask.url') . '/cluster/grid-search/api', [
-            "data" => $payloadData,
-            "kecamatan" => $request->kecamatan,
-            "kategori_kuliner" => $request->kategori_kuliner,
-            "eps_start" => $request->eps_start ?? 0.2,
-            "eps_end" => $request->eps_end ?? 1.0,
-            "eps_step" => $request->eps_step ?? 0.1,
-            "minpts_start" => $request->minpts_start ?? 4,
-            "minpts_end" => $request->minpts_end ?? 10
-        ]);
+        $response = Http::timeout(180)->post(
+            config('services.flask.url') . '/cluster/grid-search/api',
+            [
+                "data" => $payloadData,
+                "kecamatan" => $request->kecamatan,
+                "kategori_kuliner" => $request->kategori_kuliner,
+                "eps_start" => $request->eps_start ?? 0.2,
+                "eps_end" => $request->eps_end ?? 1.0,
+                "eps_step" => $request->eps_step ?? 0.1,
+                "minpts_start" => $request->minpts_start ?? 4,
+                "minpts_end" => $request->minpts_end ?? 10
+            ]
+        );
 
-        if ($response->failed()) {
-            return response()->json([
-                'error' => 'API clustering gagal diakses'
-            ], 500);
+        if (!$response->successful()) {
+            return back()->with('error', 'API clustering gagal diakses.');
         }
 
-        return redirect()->route('admin.dashboard')
-            ->with('response', $response->json());
+        $result = $response->json();
+
+        if (($result['status'] ?? null) !== 'success') {
+            return back()->with('error', $result['message'] ?? 'Grid search gagal.');
+        }
+
+        return redirect()
+            ->route('admin.dashboard')
+            ->with('response', $result['data']);
     }
 }

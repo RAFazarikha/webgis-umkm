@@ -15,6 +15,9 @@ class ClusterResult extends Model
         'umkm_id',
         'cluster',
         'is_noise',
+        'eps',
+        'min_samples',
+        'silhouette_score',
         'filter',
     ];
 

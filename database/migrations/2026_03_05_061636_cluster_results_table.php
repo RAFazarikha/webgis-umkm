@@ -23,6 +23,10 @@ return new class extends Migration
             $table->integer('cluster')->nullable();
             $table->boolean('is_noise')->default(false);
 
+            $table->float('eps', 10, 2)->nullable();
+            $table->integer('min_samples')->nullable();
+            $table->decimal('silhouette_score', 15, 14)->nullable();
+
             // Jenis filter clustering (misal: makanan_berat, minuman, dll)
             $table->string('filter');
 

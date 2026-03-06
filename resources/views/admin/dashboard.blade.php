@@ -4,11 +4,6 @@
 @section('content')
 
 @php
-    $totalUmkm = \App\Models\Umkm::count();
-    $totalCluster = \App\Models\ClusterResult::whereNotNull('cluster')->where('filter', 'none')->distinct('cluster')->count('cluster');
-    $totalNoise = \App\Models\ClusterResult::where('is_noise', true)->where('filter', 'none')->count();
-    $avgRating = round(\App\Models\Umkm::avg('rating'),1);
-
     $response = session('response');
     $best = $response['best_parameter'] ?? null;
 @endphp
@@ -70,7 +65,7 @@
 </div>
 
 <!-- QUICK ACTION -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-12">
+<div x-data="umkmModal()" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-12">
 
     <h2 class="text-xl font-semibold text-[#111827] mb-6">
         Manajemen Data UMKM
@@ -78,19 +73,17 @@
 
     <div class="flex gap-4">
 
-        <form action="{{ route('admin.umkm.grid-search') }}" method="POST">
-            @csrf
-            <button type="submit" class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-[#D92D20] transition">
-                Optimasi Parameter
-            </button>
-        </form>
+        <button
+            @click="openModal('grid')"
+            class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-[#D92D20] transition">
+            Optimasi Parameter
+        </button>
 
-        <form action="{{ route('admin.umkm.clustering') }}" method="POST">
-            @csrf
-            <button type="submit" class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-[#D92D20] transition">
-                Clusterisasi UMKM
-            </button>
-        </form>
+        <button
+            @click="openModal('cluster')"
+            class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-[#D92D20] transition">
+            Clusterisasi UMKM
+        </button>
 
         <a href="{{ route('admin.umkm.index') }}"
             class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-[#F59E0B] transition">
@@ -104,13 +97,15 @@
 
     </div>
 
+    @include('components.form-umkm-modal')
+
 </div>
 
 @if ($response)
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
 
     <h2 class="text-lg font-semibold text-gray-800 mb-4">
-        Hasil Grid Search DBSCAN
+        Hasil Uji Coba Parameter DBSCAN
     </h2>
 
     <div class="overflow-x-auto">
@@ -174,5 +169,38 @@
 
 </div>
 @endif
+
+<script>
+    function umkmModal() {
+        return {
+
+            showModal: false,
+            title: '',
+            actionUrl: '',
+            mode: '',
+
+            openModal(type) {
+
+                this.showModal = true
+                this.mode = type
+
+                if(type === 'grid') {
+                    this.title = 'Optimasi Parameter DBSCAN'
+                    this.actionUrl = "{{ route('admin.umkm.grid-search') }}"
+                }
+
+                if(type === 'cluster') {
+                    this.title = 'Clusterisasi UMKM'
+                    this.actionUrl = "{{ route('admin.umkm.clustering') }}"
+                }
+
+            },
+
+            closeModal() {
+                this.showModal = false
+            }
+        }
+    }
+</script>
 
 @endsection
