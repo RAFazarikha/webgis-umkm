@@ -239,4 +239,48 @@ class UmkmController extends Controller
             );
         }
     }
+
+    public function gridSearch(Request $request)
+    {
+        // Ambil data UMKM dari database
+        $umkms = Umkm::with('subdistrict')->get();
+
+        if ($umkms->isEmpty()) {
+            return back()->with('error', 'Data UMKM kosong.');
+        }
+
+        // Format data sesuai kebutuhan API Python
+        $payloadData = $umkms->map(function ($item) {
+            return [
+                "id" => $item->id,
+                "name" => $item->nama_usaha,
+                "latitude" => $item->latitude,
+                "longitude" => $item->longitude,
+                "kecamatan" => $item->subdistrict->name ?? null,
+                "kategori_kuliner" => $item->kategori
+            ];
+        });
+
+        // Kirim request ke API Flask
+        /** @var \Illuminate\Http\Client\Response $response */
+        $response = Http::post(config('services.flask.url') . '/cluster/grid-search/api', [
+            "data" => $payloadData,
+            "kecamatan" => $request->kecamatan,
+            "kategori_kuliner" => $request->kategori_kuliner,
+            "eps_start" => $request->eps_start ?? 0.2,
+            "eps_end" => $request->eps_end ?? 1.0,
+            "eps_step" => $request->eps_step ?? 0.1,
+            "minpts_start" => $request->minpts_start ?? 4,
+            "minpts_end" => $request->minpts_end ?? 10
+        ]);
+
+        if ($response->failed()) {
+            return response()->json([
+                'error' => 'API clustering gagal diakses'
+            ], 500);
+        }
+
+        return redirect()->route('admin.dashboard')
+            ->with('response', $response->json());
+    }
 }

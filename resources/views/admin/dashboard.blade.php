@@ -8,6 +8,9 @@
     $totalCluster = \App\Models\ClusterResult::whereNotNull('cluster')->where('filter', 'none')->distinct('cluster')->count('cluster');
     $totalNoise = \App\Models\ClusterResult::where('is_noise', true)->where('filter', 'none')->count();
     $avgRating = round(\App\Models\Umkm::avg('rating'),1);
+
+    $response = session('response');
+    $best = $response['best_parameter'] ?? null;
 @endphp
 
 @if(session('success'))
@@ -67,13 +70,20 @@
 </div>
 
 <!-- QUICK ACTION -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-12">
 
     <h2 class="text-xl font-semibold text-[#111827] mb-6">
         Manajemen Data UMKM
     </h2>
 
     <div class="flex gap-4">
+
+        <form action="{{ route('admin.umkm.grid-search') }}" method="POST">
+            @csrf
+            <button type="submit" class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-[#D92D20] transition">
+                Optimasi Parameter
+            </button>
+        </form>
 
         <form action="{{ route('admin.umkm.clustering') }}" method="POST">
             @csrf
@@ -83,17 +93,86 @@
         </form>
 
         <a href="{{ route('admin.umkm.index') }}"
-           class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-[#F59E0B] transition">
+            class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-[#F59E0B] transition">
             Lihat Data UMKM
         </a>
 
         <a href="{{ route('admin.umkm.create') }}"
-           class="px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition">
+            class="px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition">
             Tambah UMKM
         </a>
 
     </div>
 
 </div>
+
+@if ($response)
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">
+        Hasil Grid Search DBSCAN
+    </h2>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+
+            <thead class="bg-gray-100">
+                <tr class="text-left text-sm text-gray-600">
+                    <th class="px-4 py-3 border">No</th>
+                    <th class="px-4 py-3 border">EPS (km)</th>
+                    <th class="px-4 py-3 border">MinPts</th>
+                    <th class="px-4 py-3 border">Jumlah Cluster</th>
+                    <th class="px-4 py-3 border">Noise</th>
+                    <th class="px-4 py-3 border">Silhouette Score</th>
+                </tr>
+            </thead>
+
+            <tbody class="text-sm text-gray-700">
+
+                @foreach($response['results'] as $index => $row)
+
+                @php
+                    $isBest = $best &&
+                        $row['eps_km'] == $best['eps_km'] &&
+                        $row['min_samples'] == $best['min_samples'];
+                @endphp
+
+                <tr class="{{ $isBest ? 'bg-yellow-100 border-yellow-400 font-semibold' : 'hover:bg-gray-50' }}">
+
+                    <td class="px-4 py-2 border">
+                        {{ $index + 1 }}
+                    </td>
+
+                    <td class="px-4 py-2 border">
+                        {{ $row['eps_km'] }}
+                    </td>
+
+                    <td class="px-4 py-2 border">
+                        {{ $row['min_samples'] }}
+                    </td>
+
+                    <td class="px-4 py-2 border">
+                        {{ $row['jumlah_cluster'] ?? '-' }}
+                    </td>
+
+                    <td class="px-4 py-2 border">
+                        {{ $row['jumlah_noise'] ?? '-' }}
+                    </td>
+
+                    <td class="px-4 py-2 border">
+                        {{ $row['silhouette_coefficient'] ?? '-' }}
+                    </td>
+
+                </tr>
+
+                @endforeach
+
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+@endif
 
 @endsection

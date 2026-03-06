@@ -31,6 +31,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/umkm/import', [UmkmController::class, 'import'])->name('umkm.import');
 
         Route::post('/umkm/clustering', [UmkmController::class, 'runClustering'])->name('umkm.clustering');
+
+        Route::post('/umkm/grid-search', [UmkmController::class, 'gridSearch'])->name('umkm.grid-search');
     });
 
 });
