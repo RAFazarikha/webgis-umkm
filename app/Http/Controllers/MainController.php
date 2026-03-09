@@ -16,7 +16,7 @@ class MainController extends Controller
 
     public function map()
     {
-        $umkms = Umkm::with('subdistrict')->with('clusterResultNone')->get();
+        $umkms = Umkm::with('subdistrict')->with('clusterResultAll')->get();
 
         return view('map', compact('umkms'));
     }

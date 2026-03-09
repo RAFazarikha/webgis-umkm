@@ -151,7 +151,7 @@
                 district: "{{ $umkm->subdistrict->name }}",
                 address: "{{ $umkm->alamat }}",
                 open_hours: "{{ $umkm->jam_operasional ?? '-' }}",
-                cluster: "{{ $umkm->clusterResultNone->cluster ?? 'Noise' }}",
+                cluster: "{{ $umkm->clusterResultAll->cluster ?? 'Noise' }}",
                 detail_url: "{{ route('kuliner.view', $umkm->id) }}"
             },
             @endforeach

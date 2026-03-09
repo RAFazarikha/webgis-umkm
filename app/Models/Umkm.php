@@ -23,9 +23,9 @@ class Umkm extends Model
         return $this->belongsTo(Subdistrict::class, 'subdistrict_id', 'id');
     }
 
-    public function clusterResultNone()
+    public function clusterResultAll()
     {
-        return $this->hasOne(ClusterResult::class, 'umkm_id', 'id')->where('filter', 'none');
+        return $this->hasOne(ClusterResult::class, 'umkm_id', 'id')->where('filter', 'kec_all_kat_all');
     }
 }
 

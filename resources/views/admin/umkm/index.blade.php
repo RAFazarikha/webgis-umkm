@@ -34,7 +34,7 @@
                 <td class="p-4">{{ $umkm->nama_usaha }}</td>
                 <td>{{ $umkm->kategori }}</td>
                 <td>{{ $umkm->subdistrict->name ?? '-' }}</td>
-                <td>{{ $umkm->clusterResultNone->cluster ?? '-' }}</td>
+                <td>{{ $umkm->clusterResultAll->cluster ?? '-' }}</td>
                 <td class="space-x-2">
                     <a href="{{ route('admin.umkm.edit',$umkm) }}"
                         class="text-blue-600">Edit</a>

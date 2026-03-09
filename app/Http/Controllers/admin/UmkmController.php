@@ -14,15 +14,15 @@ class UmkmController extends Controller
 {
     public function index()
     {
-        $umkms = Umkm::with('subdistrict')->with('clusterResultNone')->latest()->paginate(10);
+        $umkms = Umkm::with('subdistrict')->with('clusterResultAll')->latest()->paginate(10);
         return view('admin.umkm.index', compact('umkms'));
     }
 
     public function dashboard()
     {
         $totalUmkm = Umkm::count();
-        $totalCluster = ClusterResult::whereNotNull('cluster')->where('filter', 'none')->distinct('cluster')->count('cluster');
-        $totalNoise = ClusterResult::where('is_noise', true)->where('filter', 'none')->count();
+        $totalCluster = ClusterResult::whereNotNull('cluster')->where('filter', 'kec_all_kat_all')->distinct('cluster')->count('cluster');
+        $totalNoise = ClusterResult::where('is_noise', true)->where('filter', 'kec_all_kat_all')->count();
         $avgRating = round(Umkm::avg('rating'), 1);
 
         $kecamatans = Subdistrict::withCount('umkms')->get();
@@ -196,6 +196,13 @@ class UmkmController extends Controller
                 ];
             })->values();
 
+            /** menentukan filter */
+            $kecamatan = $request->input('kecamatan') ?: 'all';
+            $kategori = $request->input('kategori') ?: 'all';
+
+            $filterKey = "kec_{$kecamatan}_kat_{$kategori}";
+
+            /** request ke Flask API */
             /** @var \Illuminate\Http\Client\Response $response */
             $response = Http::timeout(120)->post(
                 config('services.flask.url') . '/cluster/api',
@@ -203,8 +210,8 @@ class UmkmController extends Controller
                     'data' => $payloadData,
                     'eps' => $eps,
                     'min_samples' => $minSamples,
-                    'kecamatan' => $request->kecamatan,
-                    'kategori_kuliner' => $request->kategori_kuliner
+                    'kecamatan' => $kecamatan == 'all' ? null : $kecamatan,
+                    'kategori_kuliner' => $kategori == 'all' ? null : $kategori
                 ]
             );
 
@@ -232,7 +239,7 @@ class UmkmController extends Controller
                 ClusterResult::updateOrCreate(
                     [
                         'umkm_id' => $row['id'],
-                        'filter' => 'none'
+                        'filter' => $filterKey
                     ],
                     [
                         'cluster' => $cluster == -1 ? null : $cluster,
