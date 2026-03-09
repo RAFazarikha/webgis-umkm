@@ -177,7 +177,9 @@
                 district: @json($umkm->subdistrict->name),
                 address: @json($umkm->alamat),
                 open_hours: @json($umkm->jam_operasional ?? '-'),
-                cluster: @json(optional($umkm->clusterResultAll->first())->cluster ?? 'Noise'),
+                cluster: @json($clusterExists
+                    ? optional($umkm->clusterResultAll->first())->cluster
+                    : 'data belum di cluster'),
                 detail_url: @json(route('kuliner.view', $umkm->id))
             },
             @endforeach

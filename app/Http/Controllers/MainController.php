@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClusterResult;
 use App\Models\Subdistrict;
 use App\Models\Umkm;
 use Illuminate\Http\Request;
@@ -22,17 +23,32 @@ class MainController extends Controller
 
         $filterKey = "kec_{$kecamatan}_kat_{$kategori}";
 
-        $umkms = Umkm::with(['subdistrict','clusterResultAll' => function($q) use ($filterKey){
-            $q->where('filter',$filterKey);
-        }])
-        ->whereHas('clusterResultAll', function ($q) use ($filterKey){
-            $q->where('filter',$filterKey);
-        })
-        ->get();
+        // cek apakah ada hasil cluster
+        $clusterExists = ClusterResult::where('filter', $filterKey)->exists();
+
+        if ($clusterExists) {
+
+            $umkms = Umkm::with([
+                    'subdistrict',
+                    'clusterResultAll' => function ($q) use ($filterKey) {
+                        $q->where('filter', $filterKey);
+                    }
+                ])
+                ->whereHas('clusterResultAll', function ($q) use ($filterKey) {
+                    $q->where('filter', $filterKey);
+                })
+                ->get();
+
+        } else {
+
+            // tampilkan semua UMKM tanpa filter cluster
+            $umkms = Umkm::with('subdistrict')->get();
+
+        }
 
         $kecamatans = Subdistrict::all();
 
-        return view('map', compact('umkms','kecamatans','kecamatan','kategori'));
+        return view('map', compact('umkms','kecamatans','kecamatan','kategori','clusterExists'));
     }
 
     public function kuliner()
