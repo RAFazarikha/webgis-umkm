@@ -14,7 +14,20 @@ class UmkmController extends Controller
 {
     public function index()
     {
-        $umkms = Umkm::with('subdistrict')->with('clusterResultAll')->latest()->paginate(10);
+        $filterKey = 'kec_all_kat_all';
+
+        $umkms = Umkm::with([
+                'subdistrict',
+                'clusterResultAll' => function ($query) use ($filterKey) {
+                    $query->where('filter', $filterKey);
+                }
+            ])
+            ->whereHas('clusterResultAll', function ($query) use ($filterKey) {
+                $query->where('filter', $filterKey);
+            })
+            ->latest()
+            ->paginate(10);
+
         return view('admin.umkm.index', compact('umkms'));
     }
 

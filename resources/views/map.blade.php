@@ -14,11 +14,22 @@
 
         <div class="grid md:grid-cols-2 gap-8">
             <div>
-                <label class="block text-sm font-medium mb-2">Search</label>
-                <input type="text" x-model="search"
-                    placeholder="Type to search..."
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F59E0B]" />
-                <p class="text-xs text-gray-400 mt-1">Find specific locations.</p>
+                <label class="block text-sm font-medium mb-2">Kecamatan</label>
+
+                <select x-model="kecamatan"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+
+                    <option value="all">Semua Kecamatan</option>
+
+                    @foreach($kecamatans as $kecamatanItem)
+                        <option value="{{ $kecamatanItem->name }}">
+                            {{ $kecamatanItem->name }}
+                        </option>
+                    @endforeach
+
+                </select>
+
+                <p class="text-xs text-gray-400 mt-1">Pilih kecamatan.</p>
             </div>
 
             <div>
@@ -119,6 +130,23 @@
     </div>
 </section>
 
+<style>
+    .legend {
+        background: white;
+        padding: 10px 12px;
+        font-size: 12px;
+        border-radius: 6px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        line-height: 18px;
+    }
+
+    .legend i {
+        float: left;
+        margin-right: 8px;
+        opacity: 0.8;
+    }
+</style>
+
 <!-- Leaflet CDN -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -126,70 +154,216 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const map = L.map('map').setView([-7.0049, 113.8595], 12); // Sumenep center
+
+        const map = L.map('map').setView([-7.0049, 113.8595], 12);
+
+        map.createPane('markerPaneCustom');
+        map.getPane('markerPaneCustom').style.zIndex = 650;
+
+        map.createPane('tooltipPaneCustom');
+        map.getPane('tooltipPaneCustom').style.zIndex = 700;
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
-
-        const redIcon = L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41]
-        });
 
         const locations = [
             @foreach($umkms as $umkm)
             {
                 lat: {{ $umkm->latitude }},
                 lng: {{ $umkm->longitude }},
-                name: "{{ $umkm->nama_usaha }}",
-                category: "{{ $umkm->kategori }}",
-                district: "{{ $umkm->subdistrict->name }}",
-                address: "{{ $umkm->alamat }}",
-                open_hours: "{{ $umkm->jam_operasional ?? '-' }}",
-                cluster: "{{ $umkm->clusterResultAll->cluster ?? 'Noise' }}",
-                detail_url: "{{ route('kuliner.view', $umkm->id) }}"
+                name: @json($umkm->nama_usaha),
+                category: @json($umkm->kategori),
+                district: @json($umkm->subdistrict->name),
+                address: @json($umkm->alamat),
+                open_hours: @json($umkm->jam_operasional ?? '-'),
+                cluster: @json(optional($umkm->clusterResultAll->first())->cluster ?? 'Noise'),
+                detail_url: @json(route('kuliner.view', $umkm->id))
             },
             @endforeach
-        ];
+            ];
+
+        // ===============================
+        // HITUNG JUMLAH UMKM PER KECAMATAN
+        // ===============================
+
+        const umkmCount = {};
+
+        locations.forEach(loc => {
+            if (!umkmCount[loc.district]) {
+                umkmCount[loc.district] = 0;
+            }
+            umkmCount[loc.district]++;
+        });
+
+        const counts = Object.values(umkmCount);
+        const maxCount = Math.max(...counts);
+
+        const classCount = 6; // jumlah kelas warna
+        const interval = Math.ceil(maxCount / classCount);
+
+        const grades = [];
+
+        for (let i = 0; i <= maxCount; i += interval) {
+            grades.push(i);
+        }
+
+        // ===============================
+        // FUNGSI WARNA CHOROPLETH
+        // ===============================
+
+        function getDistrictColor(count) {
+
+            for (let i = grades.length - 1; i >= 0; i--) {
+                if (count >= grades[i]) {
+                    const colors = [
+                        '#FFEDA0',
+                        '#FED976',
+                        '#FEB24C',
+                        '#FD8D3C',
+                        '#FC4E2A',
+                        '#E31A1C',
+                        '#BD0026'
+                    ];
+                    return colors[i] || colors[colors.length - 1];
+                }
+            }
+
+            return '#FFEDA0';
+        }
+
+        function style(feature) {
+
+            // nama kecamatan dari geojson
+            const kecamatan = feature.properties.nm_kecamatan || feature.properties.name;
+
+            const count = umkmCount[kecamatan] || 0;
+
+            return {
+                fillColor: getDistrictColor(count),
+                weight: 1,
+                opacity: 1,
+                color: '#555',
+                fillOpacity: 0.7
+            };
+        }
+
+        // ===============================
+        // LOAD GEOJSON KECAMATAN
+        // ===============================
+
+        const districtLayer = L.geoJSON(null, {
+
+            style: style,
+
+            onEachFeature: function(feature, layer) {
+
+                const kecamatan = feature.properties.nm_kecamatan || feature.properties.name;
+                const count = umkmCount[kecamatan] || 0;
+
+                layer.bindTooltip(
+                    `<b>Kecamatan ${kecamatan}</b><br>Jumlah UMKM: ${count}`,
+                    {
+                        pane: 'tooltipPaneCustom',
+                        sticky: true
+                    }
+                );
+            }
+
+        });
+
+        fetch('/geojson/35.29_kecamatan.geojson') // letakkan file di public/geojson
+            .then(res => res.json())
+            .then(data => {
+                districtLayer.addData(data);
+            });
+
+        // ===============================
+        // LAYER TITIK UMKM
+        // ===============================
+
+        const umkmLayer = L.layerGroup();
 
         locations.forEach(loc => {
 
-            L.circleMarker([loc.lat, loc.lng], {
-                radius: 3,
+            const marker = L.circleMarker([loc.lat, loc.lng], {
+                pane: 'markerPaneCustom',
+                radius: 4,
                 fillColor: getClusterColor(loc.cluster),
                 color: "#ffffff",
-                weight: 2,
-                opacity: 0,
+                weight: 1,
                 fillOpacity: 0.9
             })
-            .addTo(map)
             .bindTooltip(
-                `<b class="capitalize">${loc.name}</b><br>Cluster: ${loc.cluster}`,
-                {
-                    direction: "top",
-                    offset: [0, -5],
-                    opacity: 0.9
-                }
-            )
+                `<b class="capitalize">${loc.name}</b><br>Cluster: ${loc.cluster}`
+            , {
+                pane: 'tooltipPaneCustom'
+            })
             .on('click', function () {
                 window.dispatchEvent(new CustomEvent('open-sidebar', {
                     detail: loc
                 }));
             });
 
+            umkmLayer.addLayer(marker);
+
         });
+
+        // ===============================
+        // TAMBAHKAN KE MAP
+        // ===============================
+
+        umkmLayer.addTo(map);
+        districtLayer.addTo(map);
+
+        // ===============================
+        // LAYER CONTROL
+        // ===============================
+
+        const overlayMaps = {
+            "Batas Kecamatan": districtLayer,
+            "Titik UMKM": umkmLayer
+        };
+
+        L.control.layers(null, overlayMaps).addTo(map);
+
+        // ===============================
+        // LEGENDA CHOROPLETH
+        // ===============================
+
+        const legend = L.control({ position: "bottomright" });
+
+        legend.onAdd = function () {
+
+            const div = L.DomUtil.create("div", "info legend");
+
+            div.innerHTML += "<b>Jumlah UMKM</b><br>";
+
+            for (let i = 0; i < grades.length; i++) {
+
+                const from = grades[i];
+                const to = grades[i + 1];
+
+                div.innerHTML +=
+                    '<i style="background:' + getDistrictColor(from + 1) +
+                    '; width:18px; height:18px; display:inline-block; margin-right:8px;"></i> ' +
+                    from + (to ? '&ndash;' + to + '<br>' : '+');
+
+            }
+
+            return div;
+        };
+
+        legend.addTo(map);
+
     });
 
     function filterHandler() {
         return {
-            search: '',
-            categories: ['Makanan Berat', 'Oleh-Oleh', 'Makanan Khas'],
+            kecamatan: 'all',
+            categories: ['Makanan Berat', 'Camilan/Oleh-Oleh', 'Makanan Khas'],
             selected: [],
+
             toggle(category) {
                 if (this.selected.includes(category)) {
                     this.selected = this.selected.filter(c => c !== category);
@@ -197,9 +371,17 @@
                     this.selected.push(category);
                 }
             },
+
             applyFilter() {
-                console.log('Search:', this.search);
-                console.log('Selected:', this.selected);
+
+                let kategori = this.selected.length ? this.selected[0] : 'all'
+
+                const params = new URLSearchParams({
+                    kecamatan: this.kecamatan,
+                    kategori: kategori
+                });
+
+                window.location.href = `/map?${params.toString()}`
             }
         }
     }
@@ -225,15 +407,39 @@
     function getClusterColor(cluster) {
 
         const colors = [
-            "#ef4444","#3b82f6","#22c55e","#f59e0b","#8b5cf6",
-            "#ec4899","#14b8a6","#eab308","#6366f1","#10b981",
-            "#f97316","#06b6d4","#a855f7","#84cc16","#f43f5e",
-            "#0ea5e9","#d946ef","#65a30d","#fb923c","#4f46e5",
-            "#059669","#dc2626","#9333ea","#16a34a","#0284c7",
-            "#be123c","#7c3aed","#15803d","#0f766e","#9a3412"
+            "#e6194B", // merah
+            "#3cb44b", // hijau
+            "#4363d8", // biru
+            "#f58231", // orange
+            "#911eb4", // ungu
+            "#46f0f0", // cyan
+            "#f032e6", // magenta
+            "#bcf60c", // lime
+            "#fabebe", // pink muda
+            "#008080", // teal
+            "#e6beff", // lavender
+            "#9a6324", // coklat
+            "#fffac8", // kuning pucat
+            "#800000", // maroon
+            "#aaffc3", // mint
+            "#808000", // olive
+            "#ffd8b1", // peach
+            "#000075", // navy
+            "#808080", // grey
+            "#ff0000", // red bright
+            "#00ff00", // green bright
+            "#0000ff", // blue bright
+            "#ff00ff", // magenta bright
+            "#00ffff", // cyan bright
+            "#ff9900", // orange strong
+            "#66ff33", // lime strong
+            "#cc00ff", // purple strong
+            "#ff3366", // pink strong
+            "#0099cc", // sky blue
+            "#33cc99"  // aqua green
         ];
 
-        return colors[cluster] ?? "#6b7280";
+        return colors[cluster] ?? "#6b7280"; // abu untuk noise
     }
 </script>
 

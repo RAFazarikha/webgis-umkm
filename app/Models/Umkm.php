@@ -25,7 +25,7 @@ class Umkm extends Model
 
     public function clusterResultAll()
     {
-        return $this->hasOne(ClusterResult::class, 'umkm_id', 'id')->where('filter', 'kec_all_kat_all');
+        return $this->hasMany(ClusterResult::class,'umkm_id');
     }
 }
 

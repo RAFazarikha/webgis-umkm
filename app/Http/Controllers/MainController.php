@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Subdistrict;
 use App\Models\Umkm;
 use Illuminate\Http\Request;
 
@@ -14,11 +15,24 @@ class MainController extends Controller
         return view('home', compact('topumkm'));
     }
 
-    public function map()
+    public function map(Request $request)
     {
-        $umkms = Umkm::with('subdistrict')->with('clusterResultAll')->get();
+        $kecamatan = $request->input('kecamatan') ?: 'all';
+        $kategori = $request->input('kategori') ?: 'all';
 
-        return view('map', compact('umkms'));
+        $filterKey = "kec_{$kecamatan}_kat_{$kategori}";
+
+        $umkms = Umkm::with(['subdistrict','clusterResultAll' => function($q) use ($filterKey){
+            $q->where('filter',$filterKey);
+        }])
+        ->whereHas('clusterResultAll', function ($q) use ($filterKey){
+            $q->where('filter',$filterKey);
+        })
+        ->get();
+
+        $kecamatans = Subdistrict::all();
+
+        return view('map', compact('umkms','kecamatans','kecamatan','kategori'));
     }
 
     public function kuliner()
