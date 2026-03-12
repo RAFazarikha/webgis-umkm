@@ -93,9 +93,23 @@
             <div class="p-6 space-y-6">
 
                 <div class="w-full h-52 bg-gray-200 rounded-xl overflow-hidden">
-                    <img :src="data.image ?? '/images/placeholder.jpg'"
-                        class="w-full h-full object-cover"
-                        alt="">
+
+                    <template x-if="data.category === 'makanan_khas'">
+                        <img :src="'{{ asset('images/makanan-khas.webp') }}'" class="w-full h-full object-cover" alt="">
+                    </template>
+
+                    <template x-if="data.category === 'makanan_berat'">
+                        <img :src="'{{ asset('images/makanan-berat.webp') }}'" class="w-full h-full object-cover" alt="">
+                    </template>
+
+                    <template x-if="data.category === 'minuman'">
+                        <img :src="'{{ asset('images/minuman.webp') }}'" class="w-full h-full object-cover" alt="">
+                    </template>
+
+                    <template x-if="data.category === 'camilan_oleh_oleh'">
+                        <img :src="'{{ asset('images/camilan.webp') }}'" class="w-full h-full object-cover" alt="">
+                    </template>
+
                 </div>
 
                 <div class="flex gap-2 flex-wrap">
@@ -178,7 +192,7 @@
                 address: @json($umkm->alamat),
                 open_hours: @json($umkm->jam_operasional ?? '-'),
                 cluster: @json($clusterExists
-                    ? optional($umkm->clusterResultAll->first())->cluster
+                    ? (optional($umkm->clusterResultAll->first())->cluster ?? 'noise')
                     : 'data belum di cluster'),
                 detail_url: @json(route('kuliner.view', $umkm->id))
             },
@@ -209,6 +223,8 @@
         for (let i = 0; i <= maxCount; i += interval) {
             grades.push(i);
         }
+
+        const selectedUmkm = @json($selectedUmkm ?? null);
 
         // ===============================
         // FUNGSI WARNA CHOROPLETH
@@ -285,6 +301,7 @@
         // ===============================
 
         const umkmLayer = L.layerGroup();
+        const markerIndex = {};
 
         locations.forEach(loc => {
 
@@ -296,9 +313,7 @@
                 weight: 1,
                 fillOpacity: 0.9
             })
-            .bindTooltip(
-                `<b class="capitalize">${loc.name}</b><br>Cluster: ${loc.cluster}`
-            , {
+            .bindTooltip(`<b class="capitalize">${loc.name}</b><br>Cluster: ${loc.cluster}`, {
                 pane: 'tooltipPaneCustom'
             })
             .on('click', function () {
@@ -307,8 +322,9 @@
                 }));
             });
 
-            umkmLayer.addLayer(marker);
+            markerIndex[loc.name] = marker;
 
+            umkmLayer.addLayer(marker);
         });
 
         // ===============================
@@ -357,6 +373,32 @@
         };
 
         legend.addTo(map);
+
+        if (selectedUmkm) {
+
+                const marker = markerIndex[selectedUmkm.nama_usaha];
+
+                if (marker) {
+
+                    const latlng = marker.getLatLng();
+
+                    map.setView(latlng, 16);
+
+                    window.dispatchEvent(new CustomEvent('open-sidebar', {
+                        detail: {
+                            lat: selectedUmkm.latitude,
+                            lng: selectedUmkm.longitude,
+                            name: selectedUmkm.nama_usaha,
+                            category: selectedUmkm.kategori,
+                            district: selectedUmkm.subdistrict.name,
+                            address: selectedUmkm.alamat,
+                            open_hours: selectedUmkm.jam_operasional ?? '-',
+                            detail_url: `/kuliner/${selectedUmkm.id}`
+                        }
+                    }));
+
+                }
+            }
 
     });
 
@@ -443,6 +485,8 @@
 
         return colors[cluster] ?? "#6b7280"; // abu untuk noise
     }
+
+
 </script>
 
 @endsection

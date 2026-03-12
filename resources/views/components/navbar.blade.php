@@ -14,8 +14,17 @@
             @endauth
         </div>
         <div class="hidden md:block">
-            <input type="text" placeholder="Search in site"
-                class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]" />
+            <form method="GET" action="/map" class="">
+                <input type="text"
+                    name="search"
+                    placeholder="Cari UMKM..."
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]">
+
+                <button
+                    class="px-6 py-2 bg-[#D92D20] text-white rounded-lg ms-2">
+                    Search
+                </button>
+            </form>
         </div>
     </div>
 </nav>

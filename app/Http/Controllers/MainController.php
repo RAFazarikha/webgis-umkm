@@ -20,6 +20,7 @@ class MainController extends Controller
     {
         $kecamatan = $request->input('kecamatan') ?: 'all';
         $kategori = $request->input('kategori') ?: 'all';
+        $search = $request->input('search');
 
         $filterKey = "kec_{$kecamatan}_kat_{$kategori}";
 
@@ -41,14 +42,34 @@ class MainController extends Controller
 
         } else {
 
-            // tampilkan semua UMKM tanpa filter cluster
             $umkms = Umkm::with('subdistrict')->get();
+
+        }
+
+        // =========================
+        // SEARCH UMKM
+        // =========================
+
+        $selectedUmkm = null;
+
+        if ($search) {
+
+            $selectedUmkm = Umkm::with('subdistrict')
+                ->where('nama_usaha','like',"%{$search}%")
+                ->first();
 
         }
 
         $kecamatans = Subdistrict::all();
 
-        return view('map', compact('umkms','kecamatans','kecamatan','kategori','clusterExists'));
+        return view('map', compact(
+            'umkms',
+            'kecamatans',
+            'kecamatan',
+            'kategori',
+            'clusterExists',
+            'selectedUmkm'
+        ));
     }
 
     public function kuliner()
@@ -67,5 +88,19 @@ class MainController extends Controller
     {
         $umkm = Umkm::with('subdistrict')->findOrFail($id);
         return view('kuliner.view', compact('umkm'));
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        $umkms = Umkm::where('nama_usaha', 'like', "%{$query}%")
+            ->orWhere('kategori', 'like', "%{$query}%")
+            ->orWhere('alamat', 'like', "%{$query}%")
+            ->with('subdistrict')
+            ->latest()
+            ->paginate(10);
+
+        return view('kuliner', compact('umkms'));
     }
 }

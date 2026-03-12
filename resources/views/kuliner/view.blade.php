@@ -67,7 +67,7 @@
 
             <!-- Action Buttons -->
             <div class="mt-8 flex gap-4">
-                <a href="{{ route('map') }}?lat={{ $umkm->latitude }}&lng={{ $umkm->longitude }}"
+                <a href="{{ route('map') }}?search={{ $umkm->nama_usaha }}"
                    class="px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition">
                     Lihat di Peta
                 </a>
@@ -83,7 +83,7 @@
     <!-- Map Preview -->
     <div class="mt-16">
         <h2 class="text-2xl font-bold text-[#111827] mb-6">Lokasi</h2>
-        <div id="detailMap" class="w-full h-[400px] rounded-2xl border border-gray-200 shadow-sm"></div>
+        <div id="detailMap" class="w-full h-[400px] rounded-2xl border border-gray-200 shadow-sm z-10"></div>
     </div>
 
 </section>
