@@ -37,7 +37,7 @@
                 <div class="flex flex-wrap gap-3">
                     <template x-for="category in categories" :key="category">
                         <button @click="toggle(category)"
-                            :class="selected.includes(category)
+                            :class="selected === category
                                 ? 'bg-[#D92D20] text-white border-[#D92D20]'
                                 : 'bg-white text-gray-700 border-gray-300'"
                             class="px-4 py-2 rounded-full border text-sm transition">
@@ -204,10 +204,9 @@ cluster: @json($clusterExists
                 detail_url: @json(route('kuliner.view', $umkm->id))
             },
             @endforeach
-            ];
+        ];
 
         function highlightMarker(marker) {
-
             // reset marker sebelumnya
             if (activeMarker) {
                 activeMarker.setStyle({
@@ -236,20 +235,22 @@ cluster: @json($clusterExists
         const umkmCount = {};
 
         locations.forEach(loc => {
-            if (!umkmCount[loc.district]) {
-                umkmCount[loc.district] = 0;
+            // NORMALISASI: Ubah semua nama kecamatan ke huruf besar agar cocok dengan GeoJSON
+            const districtName = loc.district ? loc.district.toUpperCase().trim() : 'UNKNOWN';
+
+            if (!umkmCount[districtName]) {
+                umkmCount[districtName] = 0;
             }
-            umkmCount[loc.district]++;
+            umkmCount[districtName]++;
         });
 
         const counts = Object.values(umkmCount);
-        const maxCount = Math.max(...counts);
+        const maxCount = counts.length > 0 ? Math.max(...counts) : 0;
 
         const classCount = 6; // jumlah kelas warna
-        const interval = Math.ceil(maxCount / classCount);
+        const interval = Math.ceil(maxCount / classCount) || 1; // || 1 mencegah pembagian 0 atau error interval
 
         const grades = [];
-
         for (let i = 0; i <= maxCount; i += interval) {
             grades.push(i);
         }
@@ -261,7 +262,6 @@ cluster: @json($clusterExists
         // ===============================
 
         function getDistrictColor(count) {
-
             for (let i = grades.length - 1; i >= 0; i--) {
                 if (count >= grades[i]) {
                     const colors = [
@@ -276,55 +276,58 @@ cluster: @json($clusterExists
                     return colors[i] || colors[colors.length - 1];
                 }
             }
-
             return '#FFEDA0';
         }
 
         function style(feature) {
-
-            // nama kecamatan dari geojson
-            const kecamatan = feature.properties.nm_kecamatan || feature.properties.name;
-
+            // NORMALISASI: Ambil WADMKC dan pastikan formatnya uppercase
+            const kecamatan = feature.properties.WADMKC ? feature.properties.WADMKC.toUpperCase().trim() : '';
             const count = umkmCount[kecamatan] || 0;
 
             return {
                 fillColor: getDistrictColor(count),
                 weight: 1,
                 opacity: 1,
-                color: '#555',
+                color: '#999', // Sedikit lebih terang dari #555 agar batas desa tidak menutupi warna fill
                 fillOpacity: 0.7
             };
         }
 
         // ===============================
-        // LOAD GEOJSON KECAMATAN
+        // LOAD GEOJSON KECAMATAN/DESA
         // ===============================
 
         const districtLayer = L.geoJSON(null, {
-
             style: style,
-
             onEachFeature: function(feature, layer) {
+                // Ambil nama kecamatan dan nama desa, berikan fallback jika null
+                const kecamatan = feature.properties.WADMKC ? feature.properties.WADMKC.toUpperCase().trim() : 'TIDAK DIKETAHUI';
+                const desa = feature.properties.NAMOBJ ? feature.properties.NAMOBJ : '-';
 
-                const kecamatan = feature.properties.nm_kecamatan || feature.properties.name;
                 const count = umkmCount[kecamatan] || 0;
 
+                // Modifikasi tooltip dengan styling yang rapi
                 layer.bindTooltip(
-                    `<b>Kecamatan ${kecamatan}</b><br>Jumlah UMKM: ${count}`,
+                    `<div style="text-align:center;">
+                        <b>Kecamatan ${kecamatan}</b><br>
+                        <span style="font-size: 11px; color: #555;">Desa: ${desa}</span><hr style="margin: 4px 0;">
+                        Jumlah UMKM: <b>${count}</b>
+                    </div>`,
                     {
                         pane: 'tooltipPaneCustom',
-                        sticky: true
+                        sticky: true,
+                        className: 'custom-district-tooltip' // Bisa dikustomisasi di CSS
                     }
                 );
             }
-
         });
 
-        fetch('/geojson/35.29_kecamatan.geojson') // letakkan file di public/geojson
+        fetch('/geojson/adm_desa.json') // Sesuaikan path ini dengan folder publik Anda
             .then(res => res.json())
             .then(data => {
                 districtLayer.addData(data);
-            });
+            })
+            .catch(error => console.error("Error loading GeoJSON:", error));
 
         // ===============================
         // LAYER TITIK UMKM
@@ -334,11 +337,14 @@ cluster: @json($clusterExists
         const markerIndex = {};
 
         locations.forEach(loc => {
+            // Asumsi fungsi getClusterColor sudah ada di file js Anda
+            // Jika belum, pastikan Anda menambahkannya.
+            const markerColor = typeof getClusterColor === 'function' ? getClusterColor(loc.cluster) : '#3388ff';
 
             const marker = L.circleMarker([loc.lat, loc.lng], {
                 pane: 'markerPaneCustom',
                 radius: 4,
-                fillColor: getClusterColor(loc.cluster),
+                fillColor: markerColor,
                 color: "#ffffff",
                 weight: 1,
                 fillOpacity: 0.9
@@ -347,16 +353,13 @@ cluster: @json($clusterExists
                 pane: 'tooltipPaneCustom'
             })
             .on('click', function () {
-
                 highlightMarker(this);
-
                 window.dispatchEvent(new CustomEvent('open-sidebar', {
                     detail: loc
                 }));
             });
 
             markerIndex[loc.name] = marker;
-
             umkmLayer.addLayer(marker);
         });
 
@@ -364,15 +367,15 @@ cluster: @json($clusterExists
         // TAMBAHKAN KE MAP
         // ===============================
 
+        districtLayer.addTo(map); // Tambahkan district dulu agar berada di bawah titik UMKM
         umkmLayer.addTo(map);
-        districtLayer.addTo(map);
 
         // ===============================
         // LAYER CONTROL
         // ===============================
 
         const overlayMaps = {
-            "Batas Kecamatan": districtLayer,
+            "Batas Wilayah (Desa/Kec)": districtLayer,
             "Titik UMKM": umkmLayer
         };
 
@@ -385,21 +388,24 @@ cluster: @json($clusterExists
         const legend = L.control({ position: "bottomright" });
 
         legend.onAdd = function () {
-
             const div = L.DomUtil.create("div", "info legend");
 
-            div.innerHTML += "<b>Jumlah UMKM</b><br>";
+            // CSS in-line sederhana untuk box legenda, pindahkan ke style.css jika perlu
+            div.style.backgroundColor = "white";
+            div.style.padding = "8px";
+            div.style.borderRadius = "5px";
+            div.style.boxShadow = "0 0 15px rgba(0,0,0,0.2)";
+
+            div.innerHTML += "<b style='margin-bottom:5px; display:block;'>Jumlah UMKM</b>";
 
             for (let i = 0; i < grades.length; i++) {
-
                 const from = grades[i];
                 const to = grades[i + 1];
 
                 div.innerHTML +=
                     '<i style="background:' + getDistrictColor(from + 1) +
-                    '; width:18px; height:18px; display:inline-block; margin-right:8px;"></i> ' +
+                    '; width:18px; height:18px; display:inline-block; margin-right:8px; vertical-align: middle;"></i> ' +
                     from + (to ? '&ndash;' + to + '<br>' : '+');
-
             }
 
             return div;
@@ -408,48 +414,57 @@ cluster: @json($clusterExists
         legend.addTo(map);
 
         if (selectedUmkm) {
+            const marker = markerIndex[selectedUmkm.nama_usaha];
 
-                const marker = markerIndex[selectedUmkm.nama_usaha];
+            if (marker) {
+                const latlng = marker.getLatLng();
+                map.setView(latlng, 16);
+                highlightMarker(marker);
 
-                if (marker) {
-
-                    const latlng = marker.getLatLng();
-
-                    map.setView(latlng, 16);
-
-                    highlightMarker(marker);
-
-                    window.dispatchEvent(new CustomEvent('open-sidebar', {
-                        detail: {
-                            lat: selectedUmkm.latitude,
-                            lng: selectedUmkm.longitude,
-                            name: selectedUmkm.nama_usaha,
-                            category: selectedUmkm.kategori,
-                            district: selectedUmkm.subdistrict.name,
-                            address: selectedUmkm.alamat,
-                            open_hours: selectedUmkm.jam_operasional ?? '-',
-                            detail_url: `/kuliner/${selectedUmkm.id}`
-                        }
-                    }));
-
-                }
+                window.dispatchEvent(new CustomEvent('open-sidebar', {
+                    detail: {
+                        lat: selectedUmkm.latitude,
+                        lng: selectedUmkm.longitude,
+                        name: selectedUmkm.nama_usaha,
+                        category: selectedUmkm.kategori,
+                        district: selectedUmkm.subdistrict.name,
+                        address: selectedUmkm.alamat,
+                        open_hours: selectedUmkm.jam_operasional ?? '-',
+                        detail_url: `/kuliner/${selectedUmkm.id}` // Sesuaikan route sesuai struktur Anda
+                    }
+                }));
             }
+        }
 
     });
 
 
 
     function filterHandler() {
+
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const kecamatanParam = urlParams.get('kecamatan') || 'all';
+        const kategoriParam = urlParams.get('kategori') || 'all';
+
+        const reverseCategoryMap = {
+            'makanan_berat': 'Makanan Berat',
+            'makanan_khas': 'Makanan Khas',
+            'camilan_oleh_oleh': 'Camilan/Oleh-Oleh'
+        };
+
         return {
-            kecamatan: 'all',
+            kecamatan: kecamatanParam,
             categories: ['Makanan Berat', 'Camilan/Oleh-Oleh', 'Makanan Khas'],
-            selected: [],
+            selected: kategoriParam !== 'all'
+                ? reverseCategoryMap[kategoriParam]
+                : 'all',
 
             toggle(category) {
-                if (this.selected.includes(category)) {
-                    this.selected = this.selected.filter(c => c !== category);
+                if (this.selected === category) {
+                    this.selected = 'all';
                 } else {
-                    this.selected.push(category);
+                    this.selected = category;
                 }
             },
 
@@ -461,8 +476,8 @@ cluster: @json($clusterExists
                     'Camilan/Oleh-Oleh': 'camilan_oleh_oleh'
                 };
 
-                let kategori = this.selected.length
-                    ? categoryMap[this.selected[0]]
+                let kategori = this.selected !== 'all'
+                    ? categoryMap[this.selected]
                     : 'all';
 
                 const params = new URLSearchParams({

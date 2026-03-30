@@ -16,7 +16,9 @@
                 Explore Culinary
             </a>
         </div>
-        <div class="w-full h-80 bg-gray-200 rounded-2xl"></div>
+        <div class="w-full h-80 bg-gray-200 rounded-2xl">
+            <img src="{{ asset('images/hero-kuliner.webp') }}" alt="Hero Kuliner" class="w-full h-full object-cover rounded-2xl">
+        </div>
     </div>
 
     <!-- Journey Section -->

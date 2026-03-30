@@ -67,10 +67,10 @@
                 <label class="block text-sm mb-1">Range Min Samples</label>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="number" name="min_samples_min" placeholder="Min" value="4"
+                    <input type="number" name="minpts_start" placeholder="Min" value="4"
                         class="w-full border border-gray-200 shadow-sm rounded-lg p-2">
 
-                    <input type="number" name="min_samples_max" placeholder="Max" value="10"
+                    <input type="number" name="minpts_end" placeholder="Max" value="10"
                         class="w-full border border-gray-200 shadow-sm rounded-lg p-2">
                 </div>
             </div>
