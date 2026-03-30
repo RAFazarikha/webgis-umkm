@@ -2,7 +2,7 @@
 @section('title', 'Kuliner - Jelajah Rasa')
 @section('content')
 
-<section class="max-w-7xl mx-auto md:mx-32 px-6 py-12">
+<section class="max-w-7xl mx-auto px-6 py-12 text-center items-center justify-center">
     <div class="text-center mb-12">
         <h1 class="text-4xl font-bold text-[#111827] mb-4">Ragam Kuliner Sumenep</h1>
     </div>
@@ -36,22 +36,22 @@
     <!-- Culinary List -->
     <div class="space-y-6">
         @foreach ($umkms as $umkm)
-        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex gap-6">
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col md:flex-row gap-6 items-center justify-center text-center md:text-left md:items-start md:justify-start">
             <a href="{{ route('kuliner.view', $umkm->id) }}">
-            <div class="w-32 h-32 bg-gray-200 rounded-xl flex-shrink-0">
+            <div class="w-full h-48 md:w-32 md:h-32 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden">
                 @if ($umkm->kategori == 'makanan_khas')
-                    <img class="object-cover rounded-lg" src="{{ asset('images/makanan-khas.webp') }}" alt="">
+                    <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/makanan-khas.webp') }}" alt="">
                 @elseif ($umkm->kategori == 'makanan_berat')
-                    <img class="object-cover rounded-lg" src="{{ asset('images/makanan-berat.webp') }}" alt="">
+                    <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/makanan-berat.webp') }}" alt="">
                 @elseif ($umkm->kategori == 'minuman')
-                    <img class="object-cover rounded-lg" src="{{ asset('images/minuman.webp') }}" alt="">
+                    <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/minuman.webp') }}" alt="">
                 @else
-                <img class="object-cover rounded-lg" src="{{ asset('images/camilan.webp') }}" alt="">
+                <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/camilan.webp') }}" alt="">
                 @endif
             </div>
             </a>
             <div class="flex-1">
-                <a href="{{ route('kuliner.view', $umkm->id) }}" class="text-xl font-semibold text-[#111827] mb-2 capitalize">{{ $umkm->nama_usaha }}</a>
+                <a href="{{ route('kuliner.view', $umkm->id) }}" class="text-xl font-semibold text-[#111827] mb-2 capitalize ">{{ $umkm->nama_usaha }}</a>
                 <p class="text-gray-500 mb-3">{{ $umkm->alamat }}</p>
                 <div class="flex gap-3 flex-wrap">
                     <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#D92D20]">Rating : {{ $umkm->rating ?? "-" }}</span>

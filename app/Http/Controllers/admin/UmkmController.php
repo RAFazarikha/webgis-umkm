@@ -16,17 +16,24 @@ class UmkmController extends Controller
     {
         $filterKey = 'kec_all_kat_all';
 
-        $umkms = Umkm::with([
-                'subdistrict',
-                'clusterResultAll' => function ($query) use ($filterKey) {
+        $clusterExists = ClusterResult::where('filter', $filterKey)->exists();
+
+        if ($clusterExists) {
+
+            $umkms = Umkm::with([
+                    'subdistrict',
+                    'clusterResultAll' => function ($query) use ($filterKey) {
+                        $query->where('filter', $filterKey);
+                    }
+                ])
+                ->whereHas('clusterResultAll', function ($query) use ($filterKey) {
                     $query->where('filter', $filterKey);
-                }
-            ])
-            ->whereHas('clusterResultAll', function ($query) use ($filterKey) {
-                $query->where('filter', $filterKey);
-            })
-            ->latest()
-            ->paginate(10);
+                })
+                ->latest()
+                ->paginate(10);
+        } else {
+            $umkms = Umkm::with('subdistrict')->latest()->paginate(10);
+        }
 
         return view('admin.umkm.index', compact('umkms'));
     }

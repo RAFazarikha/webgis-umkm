@@ -4,15 +4,6 @@
 
 <section class="max-w-7xl mx-auto px-6 py-12">
 
-    <!-- Breadcrumb -->
-    {{-- <div class="mb-6 text-sm text-gray-500">
-        <a href="/" class="hover:text-[#D92D20]">Beranda</a>
-        <span class="mx-2">/</span>
-        <a href="/kuliner" class="hover:text-[#D92D20]">Kuliner</a>
-        <span class="mx-2">/</span>
-        <span class="text-[#111827] font-medium">{{ $umkm->name }}</span>
-    </div> --}}
-
     <div class="grid md:grid-cols-2 gap-12">
         <!-- Image Gallery -->
         {{-- <div>
@@ -30,6 +21,9 @@
             </h1>
 
             <div class="flex gap-3 flex-wrap mb-6">
+                <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">
+                    {{ $umkm->rating ? 'Rating: ' . $umkm->rating : 'Rating: -' }}
+                </span>
 
                 @if ($umkm->kategori == 'makanan_khas')
                     <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">
@@ -60,8 +54,12 @@
 
             <div class="space-y-4 text-sm">
                 <div class="flex items-center gap-3">
+                    <span class="font-semibold text-[#111827]">Kelompok Cluster:</span>
+                    <span class="text-gray-600">{{ $umkm->clusterResultAll->first->cluster->cluster ?? 'Noise' }}</span>
+                </div>
+                <div class="flex items-center gap-3">
                     <span class="font-semibold text-[#111827]">Jam Operasional:</span>
-                    <span class="text-gray-600">{{ $umkm->jam_operasional }}</span>
+                    <span class="text-gray-600">{{ $umkm->jam_operasional ?? '-' }}</span>
                 </div>
             </div>
 

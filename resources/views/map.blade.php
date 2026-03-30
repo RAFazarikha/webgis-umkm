@@ -131,6 +131,10 @@
                         <span class="font-semibold text-[#111827]">Jam:</span>
                         <span class="text-gray-600" x-text="data.open_hours"></span>
                     </div>
+                    <div>
+                        <span class="font-semibold text-[#111827]">Cluster:</span>
+                        <span class="text-gray-600" x-text="data.cluster"></span>
+                    </div>
                 </div>
 
                 <a :href="data.detail_url"
@@ -143,7 +147,11 @@
 
     </div>
 </section>
-
+{{--
+cluster: @json($clusterExists
+                    ? (optional($umkm->clusterResultAll->first())->cluster ?? 'noise')
+                    : 'data belum di cluster'),
+--}}
 <style>
     .legend {
         background: white;
@@ -164,7 +172,6 @@
 <!-- Leaflet CDN -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/alpinejs" defer></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -193,9 +200,7 @@
                 district: @json($umkm->subdistrict->name),
                 address: @json($umkm->alamat),
                 open_hours: @json($umkm->jam_operasional ?? '-'),
-                cluster: @json($clusterExists
-                    ? (optional($umkm->clusterResultAll->first())->cluster ?? 'noise')
-                    : 'data belum di cluster'),
+                cluster: @json(optional($umkm->clusterResultAll->first())->cluster ?? 'noise'),
                 detail_url: @json(route('kuliner.view', $umkm->id))
             },
             @endforeach
@@ -450,7 +455,15 @@
 
             applyFilter() {
 
-                let kategori = this.selected.length ? this.selected[0] : 'all'
+                const categoryMap = {
+                    'Makanan Berat': 'makanan_berat',
+                    'Makanan Khas': 'makanan_khas',
+                    'Camilan/Oleh-Oleh': 'camilan_oleh_oleh'
+                };
+
+                let kategori = this.selected.length
+                    ? categoryMap[this.selected[0]]
+                    : 'all';
 
                 const params = new URLSearchParams({
                     kecamatan: this.kecamatan,

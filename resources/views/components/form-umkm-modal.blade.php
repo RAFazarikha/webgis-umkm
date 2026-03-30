@@ -47,10 +47,10 @@
                 <label class="block text-sm mb-1">Range Eps</label>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="number" step="0.01" name="eps_min" placeholder="Eps Min" value="0.2"
+                    <input type="number" step="0.01" name="eps_start" placeholder="Eps Min" value="0.2"
                         class="w-full border border-gray-200 shadow-sm rounded-lg p-2">
 
-                    <input type="number" step="0.01" name="eps_max" placeholder="Eps Max" value="1"
+                    <input type="number" step="0.01" name="eps_end" placeholder="Eps Max" value="1"
                         class="w-full border border-gray-200 shadow-sm rounded-lg p-2">
                 </div>
             </div>

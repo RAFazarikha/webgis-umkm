@@ -20,6 +20,8 @@ class MainController extends Controller
     {
         $kecamatan = $request->input('kecamatan') ?: 'all';
         $kategori = $request->input('kategori') ?: 'all';
+        // $kecamatan = 'all';
+        // $kategori = 'all';
         $search = $request->input('search');
 
         $filterKey = "kec_{$kecamatan}_kat_{$kategori}";
@@ -30,19 +32,49 @@ class MainController extends Controller
         if ($clusterExists) {
 
             $umkms = Umkm::with([
-                    'subdistrict',
-                    'clusterResultAll' => function ($q) use ($filterKey) {
-                        $q->where('filter', $filterKey);
-                    }
-                ])
-                ->whereHas('clusterResultAll', function ($q) use ($filterKey) {
+                'subdistrict',
+                'clusterResultAll' => function ($q) use ($filterKey) {
                     $q->where('filter', $filterKey);
-                })
-                ->get();
+                }
+            ])
+            ->when($kecamatan !== 'all', function ($q) use ($kecamatan) {
+                $q->whereHas('subdistrict', function ($sub) use ($kecamatan) {
+                    $sub->where('name', $kecamatan);
+                });
+            })
+            ->when($kategori !== 'all', function ($q) use ($kategori) {
+                $q->where('kategori', $kategori);
+            })
+            ->when($clusterExists, function ($q) use ($filterKey) {
+                $q->whereHas('clusterResultAll', function ($q2) use ($filterKey) {
+                    $q2->where('filter', $filterKey);
+                });
+            })
+            ->get();
 
         } else {
+            $filterKey = "kec_all_kat_all";
 
-            $umkms = Umkm::with('subdistrict')->get();
+            $umkms = Umkm::with([
+                'subdistrict',
+                'clusterResultAll' => function ($q) use ($filterKey) {
+                    $q->where('filter', $filterKey);
+                }
+            ])
+            ->when($kecamatan !== 'all', function ($q) use ($kecamatan) {
+                $q->whereHas('subdistrict', function ($sub) use ($kecamatan) {
+                    $sub->where('name', $kecamatan);
+                });
+            })
+            ->when($kategori !== 'all', function ($q) use ($kategori) {
+                $q->where('kategori', $kategori);
+            })
+            ->when($clusterExists, function ($q) use ($filterKey) {
+                $q->whereHas('clusterResultAll', function ($q2) use ($filterKey) {
+                    $q2->where('filter', $filterKey);
+                });
+            })
+            ->get();
 
         }
 
@@ -84,9 +116,20 @@ class MainController extends Controller
         return view('tentang');
     }
 
-    public function view($id)
+    public function view(Request $request, $id)
     {
-        $umkm = Umkm::with('subdistrict')->findOrFail($id);
+        $kecamatan = $request->input('kecamatan') ?: 'all';
+        $kategori = $request->input('kategori') ?: 'all';
+
+        $filterKey = "kec_{$kecamatan}_kat_{$kategori}";
+
+        $umkm = Umkm::with([
+            'subdistrict',
+            'clusterResultAll' => function ($q) use ($filterKey) {
+                $q->where('filter', $filterKey);
+            }
+        ])->findOrFail($id);
+
         return view('kuliner.view', compact('umkm'));
     }
 

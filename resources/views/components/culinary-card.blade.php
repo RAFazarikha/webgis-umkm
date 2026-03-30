@@ -1,5 +1,6 @@
-@props(['title' => 'Kaldu Kokot', 'location' => 'Sumenep', 'alamat' => 'Jl. Sumenep', 'kategori' => 'makanan_berat', 'tags' => ['Spicy', 'Tasty']])
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
+@props(['id' => '1', 'title' => 'Kaldu Kokot', 'location' => 'Sumenep', 'alamat' => 'Jl. Sumenep', 'kategori' => 'makanan_berat', 'tags' => ['Spicy', 'Tasty']])
+<div class="w-80 md:w-96 lg:w-full bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
+    <a href="{{ route('kuliner.view', $id) }}">
     <div class="w-full h-40 bg-white rounded-lg mb-4 text-center justify-center flex items-center">
         @if ($kategori == 'makanan_khas')
             <img class="h-40 object-cover rounded-lg" src="{{ asset('images/makanan-khas.webp') }}" alt="">
@@ -11,7 +12,8 @@
             <img class="h-40 object-cover rounded-lg" src="{{ asset('images/camilan.webp') }}" alt="">
         @endif
     </div>
-    <h3 class="text-lg font-semibold text-[#111827] capitalize">{{ $title }}</h3>
+    </a>
+    <a href="{{ route('kuliner.view', $id) }}" class="text-lg font-semibold text-[#111827] capitalize">{{ $title }}</a>
     <p class="text-sm text-gray-500 mb-3 truncate">{{ $alamat }}</p>
     <div class="flex gap-2 flex-wrap">
         @foreach($tags as $tag)
