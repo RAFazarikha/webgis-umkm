@@ -177,6 +177,8 @@
         map.createPane('tooltipPaneCustom');
         map.getPane('tooltipPaneCustom').style.zIndex = 700;
 
+        let activeMarker = null;
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
@@ -198,6 +200,29 @@
             },
             @endforeach
             ];
+
+        function highlightMarker(marker) {
+
+            // reset marker sebelumnya
+            if (activeMarker) {
+                activeMarker.setStyle({
+                    radius: 4,
+                    color: "#ffffff",
+                    weight: 1,
+                    fillOpacity: 0.9
+                });
+            }
+
+            // set marker baru jadi aktif
+            marker.setStyle({
+                radius: 8,              // lebih besar
+                color: "#000000",       // outline beda
+                weight: 2,
+                fillOpacity: 1
+            });
+
+            activeMarker = marker;
+        }
 
         // ===============================
         // HITUNG JUMLAH UMKM PER KECAMATAN
@@ -317,6 +342,9 @@
                 pane: 'tooltipPaneCustom'
             })
             .on('click', function () {
+
+                highlightMarker(this);
+
                 window.dispatchEvent(new CustomEvent('open-sidebar', {
                     detail: loc
                 }));
@@ -384,6 +412,8 @@
 
                     map.setView(latlng, 16);
 
+                    highlightMarker(marker);
+
                     window.dispatchEvent(new CustomEvent('open-sidebar', {
                         detail: {
                             lat: selectedUmkm.latitude,
@@ -401,6 +431,8 @@
             }
 
     });
+
+
 
     function filterHandler() {
         return {

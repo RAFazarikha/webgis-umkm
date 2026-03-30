@@ -24,11 +24,15 @@
             [x-cloak] { display: none !important; }
         </style>
     </head>
-    <body class="bg-gray-50 text-gray-900 antialiased">
+    <body class="bg-gray-50 text-gray-900 antialiased flex flex-col min-h-screen">
+
         <x-navbar />
-        <main>
+
+        <main class="flex-1 w-full">
             @yield('content')
         </main>
+
         <x-footer />
+
     </body>
 </html>
