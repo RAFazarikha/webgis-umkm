@@ -26,13 +26,11 @@ class UmkmController extends Controller
                         $query->where('filter', $filterKey);
                     }
                 ])
-                ->whereHas('clusterResultAll', function ($query) use ($filterKey) {
-                    $query->where('filter', $filterKey);
-                })
-                ->latest()
+                ->orderBy('created_at', 'desc')
+                ->orderBy('id', 'desc')
                 ->paginate(10);
         } else {
-            $umkms = Umkm::with('subdistrict')->latest()->paginate(10);
+            $umkms = Umkm::with('subdistrict')->orderBy('created_at', 'desc')->orderBy('id', 'desc')->paginate(10);
         }
 
         return view('admin.umkm.index', compact('umkms'));
@@ -79,13 +77,29 @@ class UmkmController extends Controller
             'subdistrict_id' => 'required|numeric',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
+            'jam_buka' => 'nullable|date_format:H:i',
+            'jam_tutup' => 'nullable|date_format:H:i|after:jam_buka',
+            'rating' => 'nullable|numeric|min:0|max:5',
+            'jumlah_ulasan' => 'nullable|integer|min:0'
         ]);
 
-        Umkm::create($validated + $request->only([
-            'jam_operasional',
-            'rating',
-            'jumlah_ulasan'
-        ]));
+        // Menggabungkan "08:00" dan "16:00" menjadi "08:00 - 16:00"
+        $jam_operasional = $request->jam_buka . ' - ' . $request->jam_tutup;
+
+        // Mengubah ":" menjadi "." agar sesuai keinginan Anda menjadi "08.00 - 16.00"
+        $jam_operasional = str_replace(':', '.', $jam_operasional);
+
+        Umkm::create([
+            'nama_usaha' => $validated['nama_usaha'],
+            'kategori' => $validated['kategori'],
+            'alamat' => $validated['alamat'],
+            'subdistrict_id' => $validated['subdistrict_id'],
+            'latitude' => $validated['latitude'],
+            'longitude' => $validated['longitude'],
+            'jam_operasional' => $jam_operasional,
+            'rating' => $validated['rating'] ?? null,
+            'jumlah_ulasan' => $validated['jumlah_ulasan'] ?? null
+        ]);
 
         return redirect()->route('admin.umkm.index')
             ->with('success', 'UMKM berhasil ditambahkan');
@@ -95,7 +109,26 @@ class UmkmController extends Controller
     {
         $kecamatan = Subdistrict::all();
 
-        return view('admin.umkm.edit', compact('umkm', 'kecamatan'));
+        $umkm = Umkm::findOrFail($umkm->id);
+
+        // Default value jika jam operasional kosong
+        $jam_buka = '';
+        $jam_tutup = '';
+
+        // Cek apakah data jam_operasional ada di database
+        if ($umkm->jam_operasional) {
+            // Pecah string "08.00 - 16.00" menjadi array berdasarkan pemisah " - "
+            $pecah_jam = explode(' - ', $umkm->jam_operasional);
+
+            // Pastikan array memiliki 2 elemen untuk menghindari error
+            if (count($pecah_jam) == 2) {
+                // Kembalikan format "." menjadi ":" agar dikenali oleh input type="time"
+                $jam_buka  = str_replace('.', ':', $pecah_jam[0]);
+                $jam_tutup = str_replace('.', ':', $pecah_jam[1]);
+            }
+        }
+
+        return view('admin.umkm.edit', compact('umkm', 'kecamatan', 'jam_buka', 'jam_tutup'));
     }
 
     public function update(Request $request, Umkm $umkm)
@@ -107,13 +140,27 @@ class UmkmController extends Controller
             'subdistrict_id' => 'required|numeric',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
+            'jam_buka' => 'nullable|date_format:H:i',
+            'jam_tutup' => 'nullable|date_format:H:i|after:jam_buka',
+            'rating' => 'nullable|numeric|min:0|max:5',
+            'jumlah_ulasan' => 'nullable|integer|min:0'
         ]);
 
-        $umkm->update($validated + $request->only([
-            'jam_operasional',
-            'rating',
-            'jumlah_ulasan'
-        ]));
+        if ($request->jam_buka && $request->jam_tutup) {
+            $validated['jam_operasional'] = str_replace(':', '.', $request->jam_buka) . ' - ' . str_replace(':', '.', $request->jam_tutup);
+        }
+
+        $umkm->update([
+            'nama_usaha' => $validated['nama_usaha'],
+            'kategori' => $validated['kategori'],
+            'alamat' => $validated['alamat'],
+            'subdistrict_id' => $validated['subdistrict_id'],
+            'latitude' => $validated['latitude'],
+            'longitude' => $validated['longitude'],
+            'jam_operasional' => ($request->jam_buka && $request->jam_tutup) ? str_replace(':', '.', $request->jam_buka) . ' - ' . str_replace(':', '.', $request->jam_tutup) : null,
+            'rating' => $validated['rating'] ?? null,
+            'jumlah_ulasan' => $validated['jumlah_ulasan'] ?? null
+        ]);
 
         return redirect()->route('admin.umkm.index')
             ->with('success', 'UMKM berhasil diperbarui');

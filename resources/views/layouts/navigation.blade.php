@@ -7,7 +7,8 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('admin.dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-white" />
+                        {{-- <x-application-logo class="block h-9 w-auto fill-current text-white" /> --}}
+                        <img src="{{ asset('logos/favicon-32x32.png') }}" alt="" class="block h-9 w-auto fill-current text-white">
                     </a>
                 </div>
 

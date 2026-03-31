@@ -32,7 +32,7 @@
 
     <!-- Total UMKM -->
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-        <p class="text-sm text-gray-500 mb-2">Total UMKM</p>
+        <p class="text-sm text-gray-500 mb-2">Jumlah UMKM</p>
         <h2 class="text-3xl font-bold text-[#111827]">
             {{ $totalUmkm }}
         </h2>
@@ -40,7 +40,7 @@
 
     <!-- Cluster -->
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-        <p class="text-sm text-gray-500 mb-2">Total Cluster</p>
+        <p class="text-sm text-gray-500 mb-2">Jumlah Cluster</p>
         <h2 class="text-3xl font-bold text-[#F59E0B]">
             {{ $totalCluster }}
         </h2>
@@ -48,7 +48,7 @@
 
     <!-- Noise -->
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-        <p class="text-sm text-gray-500 mb-2">Noise Point</p>
+        <p class="text-sm text-gray-500 mb-2">Jumlah Noise</p>
         <h2 class="text-3xl font-bold text-[#D92D20]">
             {{ $totalNoise }}
         </h2>
