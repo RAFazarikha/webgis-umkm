@@ -75,18 +75,18 @@
 
         <button
             @click="openModal('grid')"
-            class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-[#D92D20] transition">
+            class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-yellow-700 transition">
             Optimasi Parameter
         </button>
 
         <button
             @click="openModal('cluster')"
-            class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-[#D92D20] transition">
+            class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-yellow-700 transition">
             Clusterisasi UMKM
         </button>
 
         <a href="{{ route('admin.umkm.index') }}"
-            class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-[#F59E0B] transition">
+            class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-white border hover:border-[#111827] hover:text-[#111827] transition">
             Lihat Data UMKM
         </a>
 

@@ -51,7 +51,7 @@
 
         <div class="mt-6">
             <button @click="applyFilter()"
-                class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-[#D92D20] transition">
+                class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-white border hover:border-[#111827] hover:text-[#111827] transition">
                 Apply Filters
             </button>
         </div>

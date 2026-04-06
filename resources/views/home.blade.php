@@ -13,6 +13,6 @@
         @endforeach
     </div>
 
-    <a href="/kuliner" class="px-6 py-3 bg-black text-white rounded-lg hover:bg-[#F59E0B] transition">View All</a>
+    <a href="/kuliner" class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-white border hover:border-[#111827] hover:text-[#111827] transition">View All</a>
 </section>
 @endsection

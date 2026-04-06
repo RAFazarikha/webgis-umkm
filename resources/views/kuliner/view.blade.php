@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', $umkm->name . ' - Peta Kuliner Sumenep')
+@section('title', $umkm->subdistrict->name . ' - Peta Kuliner Sumenep')
 @section('content')
 
 <section class="max-w-7xl mx-auto px-6 py-12">
@@ -25,20 +25,24 @@
                     {{ $umkm->rating ? 'Rating: ' . $umkm->rating : 'Rating: -' }}
                 </span>
 
+                <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">
+                    {{ $umkm->jam_operasional ? 'Jam Operasional: ' . $umkm->jam_operasional : 'Jam Operasional: -' }}
+                </span>
+
                 @if ($umkm->kategori == 'makanan_khas')
-                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">
+                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">
                         Makanan Khas
                     </span>
                 @elseif ($umkm->kategori == 'makanan_berat')
-                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">
+                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">
                         Makanan Berat
                     </span>
                 @elseif ($umkm->kategori == 'minuman')
-                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">
+                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">
                         Minuman
                     </span>
                 @else
-                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">
+                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">
                         Camilan/Oleh-oleh
                     </span>
                 @endif
@@ -57,14 +61,16 @@
                     <span class="font-semibold text-[#111827]">Kelompok Cluster:</span>
                     <span class="text-gray-600">{{ $umkm->clusterResultAll->first->cluster->cluster ?? 'Noise' }}</span>
                 </div>
-                <div class="flex items-center gap-3">
-                    <span class="font-semibold text-[#111827]">Jam Operasional:</span>
-                    <span class="text-gray-600">{{ $umkm->jam_operasional ?? '-' }}</span>
-                </div>
             </div>
 
             <!-- Action Buttons -->
-            <div class="mt-8 flex gap-4">
+            <div class="mt-8 flex gap-4 flex-wrap">
+                <a href="https://www.google.com/maps?q={{ $umkm->latitude }},{{ $umkm->longitude }}"
+                    target="_blank"
+                    class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-yellow-700 transition">
+                    Lihat di Google Maps
+                </a>
+
                 <a href="{{ route('map') }}?search={{ $umkm->nama_usaha }}"
                     class="px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition">
                     Lihat di Peta

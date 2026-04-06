@@ -25,7 +25,7 @@
             <form method="GET" action="/map">
                 <input type="text" name="search" placeholder="Cari UMKM..."
                     class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]">
-                <button class="px-6 py-2 bg-[#D92D20] text-white rounded-lg ms-2">
+                <button class="px-6 py-2 bg-[#D92D20] text-white rounded-lg ms-2 hover:bg-red-700 transition">
                     Search
                 </button>
             </form>
@@ -59,7 +59,7 @@
         <form method="GET" action="/map" class="pt-2">
             <input type="text" name="search" placeholder="Cari UMKM..."
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]">
-            <button class="w-full mt-2 px-4 py-2 bg-[#D92D20] text-white rounded-lg">
+            <button class="w-full mt-2 px-4 py-2 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition">
                 Search
             </button>
         </form>
