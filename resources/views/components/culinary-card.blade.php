@@ -15,21 +15,24 @@
     </a>
     <a href="{{ route('kuliner.view', $id) }}" class="text-lg font-semibold text-[#111827] capitalize">{{ $title }}</a>
     <p class="text-sm text-gray-500 mb-3 truncate">{{ $alamat }}</p>
-    <div class="flex gap-2 flex-wrap">
-        @foreach($tags as $tag)
-            <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">{{ $tag }}</span>
-        @endforeach
+    <div class="grid grid-cols-1 gap-2 text-center items-center justify-center">
+        <div class="flex gap-2 flex-wrap mx-auto">
+            @foreach($tags as $tag)
+                <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">{{ $tag }}</span>
+            @endforeach
+        </div>
+        <div class="flex gap-2 flex-wrap mx-auto">
+            @if ($kategori == 'makanan_khas')
+                <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Makanan Khas</span>
+            @elseif ($kategori == 'makanan_berat')
+                <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Makanan Berat</span>
+            @elseif ($kategori == 'minuman')
+                <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Minuman</span>
+            @else
+                <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Camilan/Oleh-oleh</span>
+            @endif
 
-        @if ($kategori == 'makanan_khas')
-            <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Makanan Khas</span>
-        @elseif ($kategori == 'makanan_berat')
-            <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Makanan Berat</span>
-        @elseif ($kategori == 'minuman')
-            <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Minuman</span>
-        @else
-            <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Camilan/Oleh-oleh</span>
-        @endif
-
-        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">{{ $location }}</span>
+            <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">{{ $location }}</span>
+        </div>
     </div>
 </div>

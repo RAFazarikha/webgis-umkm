@@ -55,9 +55,9 @@
                 <a href="{{ route('kuliner.view', $umkm->id) }}" class="text-xl font-semibold text-[#111827] mb-2 capitalize ">{{ $umkm->nama_usaha }}</a>
                 <p class="text-gray-500 mb-3">{{ $umkm->alamat }}</p>
                 <div class="flex gap-3 flex-wrap">
-                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#D92D20]">Rating : {{ $umkm->rating ?? "-" }}</span>
+                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">Rating : {{ $umkm->rating ?? "-" }}</span>
 
-                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#D92D20]">Jam Operasional : {{ $umkm->jam_operasional ?? "-" }}</span>
+                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">Jam Operasional : {{ $umkm->jam_operasional ?? "-" }}</span>
 
                     @if ($umkm->kategori == 'makanan_khas')
                         <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Makanan Khas</span>
