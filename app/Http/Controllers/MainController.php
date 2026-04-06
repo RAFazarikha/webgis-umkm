@@ -104,9 +104,17 @@ class MainController extends Controller
         ));
     }
 
-    public function kuliner()
+    public function kuliner(Request $request)
     {
-        $umkms = Umkm::with('subdistrict')->latest()->paginate(10);
+        $search = $request->input('search');
+
+        $umkms = Umkm::with('subdistrict')
+            ->when($search, function ($q) use ($search) {
+                $q->where('nama_usaha', 'like', "%{$search}%")
+                  ->orWhere('kategori', 'like', "%{$search}%")
+                  ->orWhere('alamat', 'like', "%{$search}%");
+            })
+            ->latest()->paginate(10);
 
         return view('kuliner', compact('umkms'));
     }

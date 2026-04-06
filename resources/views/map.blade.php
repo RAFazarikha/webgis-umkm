@@ -1,10 +1,10 @@
 @extends('layouts.app')
-@section('title', 'Map - Jelajah Rasa')
+@section('title', 'Map - Peta Kuliner Sumenep')
 @section('content')
 
 <section class="max-w-7xl mx-auto px-6 py-12">
     <div class="text-center mb-10">
-        <h1 class="text-4xl font-bold text-[#111827] mb-4">Jelajah Rasa</h1>
+        <h1 class="text-4xl font-bold text-[#111827] mb-4">Peta Kuliner Sumenep</h1>
         <p class="text-gray-500">Explore the island with ease.</p>
     </div>
 

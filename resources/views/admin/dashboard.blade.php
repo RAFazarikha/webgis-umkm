@@ -23,7 +23,7 @@
         Dashboard Admin
     </h1>
     <p class="text-gray-500">
-        Overview sistem WebGIS UMKM Jelajah Rasa.
+        Overview sistem WebGIS UMKM | Peta Kuliner Sumenep.
     </p>
 </div>
 

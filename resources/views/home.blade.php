@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Beranda - Jelajah Rasa')
+@section('title', 'Beranda - Peta Kuliner Sumenep')
 @section('content')
 <x-hero />
 

@@ -1,15 +1,15 @@
 @extends('layouts.app')
-@section('title', 'Tentang - Jelajah Rasa')
+@section('title', 'Tentang - Peta Kuliner Sumenep')
 @section('content')
 
 <section class="max-w-7xl mx-auto px-6 py-16">
     <!-- Hero Tentang -->
     <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
         <div>
-            <h1 class="text-4xl font-bold text-[#111827] mb-6">Tentang Jelajah Rasa</h1>
+            <h1 class="text-4xl font-bold text-[#111827] mb-6">Tentang Peta Kuliner Sumenep</h1>
             <p class="text-gray-600 mb-6 leading-relaxed">
                 Discover the essence of our culinary offerings and commitment to quality.
-                Jelajah Rasa hadir sebagai platform WebGIS untuk memetakan dan mempromosikan
+                Peta Kuliner Sumenep hadir sebagai platform WebGIS untuk memetakan dan mempromosikan
                 ragam kuliner khas Madura, khususnya Sumenep.
             </p>
             <a href="/kuliner" class="inline-block px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition">
@@ -24,9 +24,9 @@
     <!-- Journey Section -->
     <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
         <div>
-            <h2 class="text-3xl font-bold text-[#111827] mb-4">Tentang Jelajah Rasa</h2>
+            <h2 class="text-3xl font-bold text-[#111827] mb-4">Tentang Peta Kuliner Sumenep</h2>
             <p class="text-gray-600 leading-relaxed">
-                Jelajah Rasa is dedicated to providing structured geographic-based culinary
+                Peta Kuliner Sumenep is dedicated to providing structured geographic-based culinary
                 information. Platform ini mengintegrasikan sistem informasi geografis
                 dengan direktori UMKM kuliner untuk meningkatkan visibilitas usaha lokal.
             </p>
@@ -36,7 +36,7 @@
             <div>
                 <h3 class="text-lg font-semibold text-[#111827] mb-2">Our Journey</h3>
                 <p class="text-gray-500 text-sm leading-relaxed">
-                    Jelajah Rasa started with a passion for authentic flavors,
+                    Peta Kuliner Sumenep started with a passion for authentic flavors,
                     evolving into a culinary journey powered by digital mapping technology.
                 </p>
             </div>
@@ -45,7 +45,7 @@
 
     <!-- Why Section -->
     <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold text-[#111827] mb-4">Mengapa Jelajah Rasa Hadir?</h2>
+        <h2 class="text-3xl font-bold text-[#111827] mb-4">Mengapa Peta Kuliner Sumenep Hadir?</h2>
         <p class="text-gray-500">Here are the reasons why we stand out.</p>
     </div>
 

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', $umkm->name . ' - Jelajah Rasa')
+@section('title', $umkm->name . ' - Peta Kuliner Sumenep')
 @section('content')
 
 <section class="max-w-7xl mx-auto px-6 py-12">

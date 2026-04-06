@@ -5,7 +5,7 @@
         <div class="flex items-center gap-3">
             <a href="/" class="flex items-center gap-3">
                 <img src="{{ asset('logos/favicon-32x32.png') }}" alt="Logo" />
-                <span class="text-xl font-semibold text-[#111827]">Jelajah Rasa</span>
+                <span class="text-xl font-semibold text-[#111827]">Peta Kuliner Sumenep</span>
             </a>
         </div>
 

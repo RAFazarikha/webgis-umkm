@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Kuliner - Jelajah Rasa')
+@section('title', 'Kuliner - Peta Kuliner Sumenep')
 @section('content')
 
 <section class="max-w-7xl mx-auto px-6 py-12 text-center items-center justify-center">
@@ -9,11 +9,12 @@
 
     <!-- Search Section -->
     <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm mb-12">
-        <div class="grid md:grid-cols-3 gap-6 items-end">
+        <form action="/kuliner" method="GET" class="grid md:grid-cols-3 gap-6 items-end">
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium mb-2">Search</label>
                 <div class="relative">
                     <input type="text" name="search" placeholder="Search for culinary spots..."
+                        value="{{ request('search') }}"
                         class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:border-[#F59E0B]" />
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="w-5 h-5 absolute right-4 top-1/2 -translate-y-1/2 text-[#111827]"
@@ -30,7 +31,7 @@
                     Search
                 </button>
             </div>
-        </div>
+        </form>
     </div>
 
     <!-- Culinary List -->
