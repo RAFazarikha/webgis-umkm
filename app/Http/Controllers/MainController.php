@@ -11,7 +11,9 @@ class MainController extends Controller
 {
     public function home()
     {
-        $topumkm = Umkm::orderBy('rating', 'desc')->take(6)->get();
+        $topumkm = Umkm::orderBy('jumlah_ulasan', 'desc')
+            ->orderBy('rating', 'desc')
+            ->take(6)->get();
 
         return view('home', compact('topumkm'));
     }

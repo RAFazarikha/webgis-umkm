@@ -15,6 +15,12 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link
+                        :href="route('home')"
+                        :active="request()->routeIs('home')"
+                        class="text-white hover:text-[#F59E0B] border-b-2 border-transparent data-[active=true]:border-[#D92D20]">
+                        {{ __('Homepage') }}
+                    </x-nav-link>
+                    <x-nav-link
                         :href="route('admin.dashboard')"
                         :active="request()->routeIs('admin.dashboard')"
                         class="text-white hover:text-[#F59E0B] border-b-2 border-transparent data-[active=true]:border-[#D92D20]">
@@ -90,6 +96,12 @@
     <!-- Responsive Navigation -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-[#111827]">
         <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link
+                :href="route('home')"
+                :active="request()->routeIs('home')"
+                class="text-white hover:text-[#F59E0B]">
+                {{ __('Homepage') }}
+            </x-responsive-nav-link>
             <x-responsive-nav-link
                 :href="route('admin.dashboard')"
                 :active="request()->routeIs('admin.dashboard')"

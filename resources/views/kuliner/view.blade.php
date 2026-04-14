@@ -76,7 +76,7 @@
                     Lihat di Peta
                 </a>
 
-                <a href="/kuliner"
+                <a href="{{ url()->previous() }}"
                     class="px-6 py-3 border border-[#111827] text-[#111827] rounded-lg hover:bg-[#111827] hover:text-white transition">
                     Kembali
                 </a>
@@ -145,7 +145,7 @@
         function showRoute(destinationLatLng) {
 
             if (!userLocation) {
-                alert("Tunggu, lokasi Anda sedang diambil...");
+                showMapWarning("Tunggu, lokasi Anda sedang diambil...");
                 return;
             }
 
@@ -163,13 +163,37 @@
                     serviceUrl: 'https://router.project-osrm.org/route/v1'
                 }),
                 lineOptions: {
-                    styles: [{ color: '#2563eb', weight: 5 }]
+                    styles: [{ color: '#4285F4', weight: 5, opacity: 0.9 }]
+                },
+                showAlternatives: true,
+                altLineOptions: {
+                    styles: [{ color: '#BCCAFA', weight: 5, opacity: 0.8 }]
                 },
                 routeWhileDragging: false,
                 addWaypoints: false,
                 draggableWaypoints: false,
                 fitSelectedRoutes: true
             }).addTo(map);
+
+            // ✅ TANGKAP ERROR DAN TAMPILKAN DI KANAN ATAS PETA
+            routingControl.on('routingerror', function(e) {
+                showMapWarning("Lokasi tujuan mungkin berada di pulau berbeda atau tidak memiliki akses jalur darat.");
+
+                // Hapus routing control yang gagal
+                map.removeControl(routingControl);
+                routingControl = null;
+
+                // ✅ FITUR BARU: Arahkan peta kembali ke lokasi tujuan (UMKM)
+                map.flyTo([lat, lng], 15, {
+                    animate: true,
+                    duration: 1.5 // Durasi animasi pergeseran peta dalam detik
+                });
+
+                // ✅ Buka kembali popup marker tujuan agar terlihat jelas
+                if (typeof destinationMarker !== 'undefined') {
+                    destinationMarker.openPopup();
+                }
+            });
         }
 
         // =========================
@@ -184,26 +208,21 @@
             shadowSize: [41, 41]
         });
 
+        // Simpan marker ke dalam variabel global (di dalam scope DOMContentLoaded) agar bisa dipanggil saat error
         const destinationMarker = L.marker([lat, lng], { icon: redIcon })
             .addTo(map)
             .bindPopup(`
                 <strong class="capitalize">{{ $umkm->nama_usaha }}</strong><br>
-                <button id="btnRoute" style="margin-top:5px; padding:4px 8px; background:#2563eb; color:white; border:none; border-radius:4px;">
+                <button id="btnRoute" style="margin-top:5px; padding:4px 8px; background:#2563eb; color:white; border:none; border-radius:4px; cursor:pointer;">
                     Tampilkan Rute
                 </button>
             `)
             .openPopup();
 
-        // =========================
-        // EVENT: KLIK MARKER → ROUTE
-        // =========================
         destinationMarker.on('click', function () {
             showRoute([lat, lng]);
         });
 
-        // =========================
-        // EVENT: KLIK TOMBOL DI POPUP
-        // =========================
         map.on('popupopen', function () {
             const btn = document.getElementById('btnRoute');
             if (btn) {
@@ -212,6 +231,69 @@
                 });
             }
         });
+
+        // =========================
+        // FUNGSI MENAMPILKAN WARNING DI PETA (KANAN ATAS)
+        // =========================
+        let warningControl = null;
+
+        function showMapWarning(message) {
+            if (warningControl) {
+                map.removeControl(warningControl);
+            }
+
+            const WarningControl = L.Control.extend({
+                options: { position: 'topright' },
+                onAdd: function () {
+                    const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+
+                    container.style.backgroundColor = '#fef2f2';
+                    container.style.color = '#991b1b';
+                    container.style.padding = '12px 16px';
+                    container.style.border = '1px solid #f87171';
+                    container.style.borderRadius = '8px';
+                    container.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                    container.style.maxWidth = '300px';
+                    container.style.fontSize = '14px';
+                    container.style.lineHeight = '1.4';
+                    container.style.zIndex = '1000';
+
+                    container.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+                            <div>
+                                <strong style="display: block; margin-bottom: 4px; font-size: 15px;">⚠️ Rute Tidak Tersedia</strong>
+                                <span>${message}</span>
+                            </div>
+                            <button id="closeWarningBtn" style="background:transparent; border:none; color:#991b1b; font-size:20px; cursor:pointer; padding:0; line-height:1; font-weight:bold;">&times;</button>
+                        </div>
+                    `;
+
+                    L.DomEvent.disableClickPropagation(container);
+
+                    return container;
+                }
+            });
+
+            warningControl = new WarningControl();
+            map.addControl(warningControl);
+
+            setTimeout(() => {
+                const closeBtn = document.getElementById('closeWarningBtn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function() {
+                        map.removeControl(warningControl);
+                        warningControl = null;
+                    });
+                }
+            }, 100);
+
+            setTimeout(() => {
+                if (warningControl) {
+                    map.removeControl(warningControl);
+                    warningControl = null;
+                }
+            }, 7000);
+        }
 
     });
 </script>
