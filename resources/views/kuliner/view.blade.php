@@ -5,15 +5,12 @@
     $subdistrictName = $umkm->subdistrict->name ?? 'Sumenep';
     $description = "Temukan kuliner terbaik di {$umkmName} yang berlokasi di {$subdistrictName}. Temukan informasi lokasi spasial dan detail lainnya di Peta Kuliner Sumenep.";
 
-    @if ($umkm->kategori == 'makanan_khas')
-        $imageUrl = asset('images/makanan-khas.webp');
-    @elseif ($umkm->kategori == 'makanan_berat')
-        $imageUrl = asset('images/makanan-berat.webp');
-    @elseif ($umkm->kategori == 'minuman')
-        $imageUrl = asset('images/minuman.webp');
-    @else
-        $imageUrl = asset('images/camilan.webp');
-    @endif
+    $imageUrl = match ($umkm->kategori) {
+        'makanan_khas'  => asset('images/makanan-khas.webp'),
+        'makanan_berat' => asset('images/makanan-berat.webp'),
+        'minuman'       => asset('images/minuman.webp'),
+        default         => asset('images/camilan.webp'),
+    };
 @endphp
 
 {{-- Mengisi Yield di Layout --}}
@@ -27,31 +24,30 @@
 @push('meta_tags')
 <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
-        "@type": "Restaurant",
+        "@@context": "https://schema.org",
+        "@@type": "Restaurant",
         "name": "{{ $umkm->nama_usaha }}",
         "image": "{{ $imageUrl }}",
-        "@id": "{{ url('/umkm/' . $umkm->slug) }}",
-        "url": "{{ url('/umkm/' . $umkm->slug) }}",
+        "@@id": "{{ url('/kuliner/' . $umkm->slug) }}",
+        "url": "{{ url('/kuliner/' . $umkm->slug) }}",
         "telephone": "082143456658",
         "address": {
-            "@type": "PostalAddress",
+            "@@type": "PostalAddress",
             "streetAddress": "{{ $umkm->alamat }}",
             "addressLocality": "Sumenep",
             "addressRegion": "Jawa Timur",
             "addressCountry": "ID"
         },
         "geo": {
-            "@type": "GeoCoordinates",
-            "latitude": {{ $umkm->latitude }},
-            "longitude": {{ $umkm->longitude }}
+            "@@type": "GeoCoordinates",
+            "latitude": {{ $umkm->latitude ?? 'null' }},
+            "longitude": {{ $umkm->longitude ?? 'null' }}
         }
     }
 </script>
 @endpush
 
 @section('content')
-
 <section class="max-w-7xl mx-auto px-6 py-12">
 
     <div class="grid md:grid-cols-2 gap-12">
