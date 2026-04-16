@@ -1,5 +1,21 @@
 @extends('layouts.app')
 @section('title', 'Kuliner - Peta Kuliner Sumenep')
+
+{{-- Menyiapkan variabel bantu agar penulisan lebih rapi --}}
+@php
+    $description = "Peta Kuliner Sumenep adalah platform yang memetakan berbagai destinasi kuliner di Kabupaten Sumenep, mulai dari makanan khas, makanan berat, minuman, hingga camilan/oleh-oleh. Jelajahi ragam kuliner terbaik di Sumenep dengan sistem pemetaan spasial kami yang mudah digunakan.";
+
+    // Mengecek apakah UMKM punya foto, jika tidak biarkan kosong agar memakai default dari layout
+    $imageUrl = asset('images/hero-kuliner.webp');
+@endphp
+
+{{-- Mengisi Yield di Layout --}}
+@section('meta_description', $description)
+
+@section('meta_image', $imageUrl)
+
+@section('meta_type', 'website')
+
 @section('content')
 
 <section class="max-w-7xl mx-auto px-6 py-12 text-center items-center justify-center">
@@ -38,7 +54,7 @@
     <div class="space-y-6">
         @foreach ($umkms as $umkm)
         <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col md:flex-row gap-6 items-center justify-center text-center md:text-left md:items-start md:justify-start">
-            <a href="{{ route('kuliner.view', $umkm->id) }}">
+            <a href="{{ route('kuliner.view', $umkm->slug) }}">
             <div class="w-full h-48 md:w-32 md:h-32 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden">
                 @if ($umkm->kategori == 'makanan_khas')
                     <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/makanan-khas.webp') }}" alt="">
@@ -52,7 +68,7 @@
             </div>
             </a>
             <div class="flex-1">
-                <a href="{{ route('kuliner.view', $umkm->id) }}" class="text-xl font-semibold text-[#111827] mb-2 capitalize ">{{ $umkm->nama_usaha }}</a>
+                <a href="{{ route('kuliner.view', $umkm->slug) }}" class="text-xl font-semibold text-[#111827] mb-2 capitalize ">{{ $umkm->nama_usaha }}</a>
                 <p class="text-gray-500 mb-3">{{ $umkm->alamat }}</p>
                 <div class="flex gap-3 flex-wrap">
                     <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">Rating : {{ $umkm->rating ?? "-" }}</span>

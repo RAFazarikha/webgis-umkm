@@ -36,6 +36,8 @@ return new class extends Migration
             $table->double('latitude');
             $table->double('longitude');
 
+            $table->string('slug')->unique();
+
             $table->timestamps();
         });
     }

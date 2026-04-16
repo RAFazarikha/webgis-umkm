@@ -1,5 +1,55 @@
 @extends('layouts.app')
-@section('title', $umkm->subdistrict->name . ' - Peta Kuliner Sumenep')
+
+@php
+    $umkmName = $umkm->nama_usaha ?? 'Kuliner Sumenep';
+    $subdistrictName = $umkm->subdistrict->name ?? 'Sumenep';
+    $description = "Temukan kuliner terbaik di {$umkmName} yang berlokasi di {$subdistrictName}. Temukan informasi lokasi spasial dan detail lainnya di Peta Kuliner Sumenep.";
+
+    @if ($umkm->kategori == 'makanan_khas')
+        $imageUrl = asset('images/makanan-khas.webp');
+    @elseif ($umkm->kategori == 'makanan_berat')
+        $imageUrl = asset('images/makanan-berat.webp');
+    @elseif ($umkm->kategori == 'minuman')
+        $imageUrl = asset('images/minuman.webp');
+    @else
+        $imageUrl = asset('images/camilan.webp');
+    @endif
+@endphp
+
+{{-- Mengisi Yield di Layout --}}
+@section('title', "{$umkmName} di {$subdistrictName} - Peta Kuliner Sumenep")
+@section('meta_description', $description)
+
+@section('meta_image', $imageUrl)
+
+@section('meta_type', 'article')
+
+@push('meta_tags')
+<script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Restaurant",
+        "name": "{{ $umkm->nama_usaha }}",
+        "image": "{{ $imageUrl }}",
+        "@id": "{{ url('/umkm/' . $umkm->slug) }}",
+        "url": "{{ url('/umkm/' . $umkm->slug) }}",
+        "telephone": "082143456658",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "{{ $umkm->alamat }}",
+            "addressLocality": "Sumenep",
+            "addressRegion": "Jawa Timur",
+            "addressCountry": "ID"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": {{ $umkm->latitude }},
+            "longitude": {{ $umkm->longitude }}
+        }
+    }
+</script>
+@endpush
+
 @section('content')
 
 <section class="max-w-7xl mx-auto px-6 py-12">

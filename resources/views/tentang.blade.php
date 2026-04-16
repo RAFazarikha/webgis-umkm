@@ -1,5 +1,21 @@
 @extends('layouts.app')
 @section('title', 'Tentang - Peta Kuliner Sumenep')
+
+{{-- Menyiapkan variabel bantu agar penulisan lebih rapi --}}
+@php
+    $description = "Peta Kuliner Sumenep adalah platform yang memetakan berbagai destinasi kuliner di Kabupaten Sumenep, mulai dari makanan khas, makanan berat, minuman, hingga camilan/oleh-oleh. Jelajahi ragam kuliner terbaik di Sumenep dengan sistem pemetaan spasial kami yang mudah digunakan.";
+
+    // Mengecek apakah UMKM punya foto, jika tidak biarkan kosong agar memakai default dari layout
+    $imageUrl = asset('images/hero-kuliner.webp');
+@endphp
+
+{{-- Mengisi Yield di Layout --}}
+@section('meta_description', $description)
+
+@section('meta_image', $imageUrl)
+
+@section('meta_type', 'website')
+
 @section('content')
 
 <section class="max-w-7xl mx-auto px-6 py-16">

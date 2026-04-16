@@ -7,6 +7,25 @@
 
         <title>@yield('title', config('app.name'))</title>
 
+        <meta name="title" content="@yield('title', config('app.name', 'Peta Kuliner Sumenep'))">
+        <meta name="description" content="@yield('meta_description', 'Temukan berbagai destinasi dan clustering kuliner terbaik di Kabupaten Sumenep melalui sistem pemetaan spasial kami.')">
+
+        <meta property="og:type" content="@yield('meta_type', 'website')">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:title" content="@yield('title', config('app.name', 'Peta Kuliner Sumenep'))">
+        <meta property="og:description" content="@yield('meta_description', 'Temukan berbagai destinasi dan clustering kuliner terbaik di Kabupaten Sumenep melalui sistem pemetaan spasial kami.')">
+        <meta property="og:image" content="@yield('meta_image', asset('images/hero-kuliner.webp'))">
+
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:url" content="{{ url()->current() }}">
+        <meta property="twitter:title" content="@yield('title', config('app.name', 'Peta Kuliner Sumenep'))">
+        <meta property="twitter:description" content="@yield('meta_description', 'Temukan berbagai destinasi dan clustering kuliner terbaik di Kabupaten Sumenep melalui sistem pemetaan spasial kami.')">
+        <meta property="twitter:image" content="@yield('meta_image', asset('images/hero-kuliner.webp'))">
+
+        <link rel="canonical" href="{{ url()->current() }}">
+
+        @stack('meta_tags')
+
         <!-- Logo -->
         <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('logos/apple-touch-icon.png') }}">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('logos/favicon-32x32.png') }}">

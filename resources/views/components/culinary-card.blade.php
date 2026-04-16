@@ -1,6 +1,7 @@
-@props(['id' => '1', 'title' => 'Kaldu Kokot', 'location' => 'Sumenep', 'alamat' => 'Jl. Sumenep', 'kategori' => 'makanan_berat', 'tags' => ['Spicy', 'Tasty']])
+@props(['id' => '1', 'title' => 'Kaldu Kokot', 'location' => 'Sumenep', 'alamat' => 'Jl. Sumenep', 'kategori' => 'makanan_berat', 'tags' => ['Spicy', 'Tasty'], 'slug' => 'kaldu-kokot'])
+
 <div class="w-80 md:w-96 lg:w-full bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition">
-    <a href="{{ route('kuliner.view', $id) }}">
+    <a href="{{ route('kuliner.view', $slug) }}">
     <div class="w-full h-40 bg-white rounded-lg mb-4 text-center justify-center flex items-center">
         @if ($kategori == 'makanan_khas')
             <img class="h-40 object-cover rounded-lg" src="{{ asset('images/makanan-khas.webp') }}" alt="">

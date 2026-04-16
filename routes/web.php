@@ -13,7 +13,7 @@ Route::get('/kuliner', [MainController::class, 'kuliner'])->name('kuliner');
 
 Route::get('/tentang', [MainController::class, 'tentang'])->name('tentang');
 
-Route::get('/kuliner/{id}', [MainController::class, 'view'])->name('kuliner.view');
+Route::get('/kuliner/{slug}', [MainController::class, 'view'])->name('kuliner.view');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 

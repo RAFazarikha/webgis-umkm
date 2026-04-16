@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ClusterResult;
 use App\Models\Subdistrict;
 use App\Models\Umkm;
+use Cviebrock\EloquentSluggable\Services\SlugService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -205,8 +206,20 @@ class UmkmController extends Controller
             }
 
             $data = [];
+            $slugsPelacak = [];
 
             while (($row = fgetcsv($handle, 1000, ';')) !== false) {
+
+                $baseSlug = SlugService::createSlug(Umkm::class, 'slug', $row[0]);
+                $slugUnik = $baseSlug;
+                $counter = 1;
+
+                while (in_array($slugUnik, $slugsPelacak)) {
+                    $slugUnik = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+
+                $slugsPelacak[] = $slugUnik;
 
                 $data[] = [
                     'nama_usaha'      => $row[0],
@@ -218,6 +231,7 @@ class UmkmController extends Controller
                     'jumlah_ulasan'   => $row[7] !== '' ? (int) $row[7] : null,
                     'latitude'        => (float) $row[8],
                     'longitude'       => (float) $row[9],
+                    'slug'            => $slugUnik,
                     'created_at'      => now(),
                     'updated_at'      => now(),
                 ];

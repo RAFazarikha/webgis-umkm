@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 
 class Umkm extends Model
 {
+    use Sluggable;
+
     protected $fillable = [
         'nama_usaha',
         'kategori',
@@ -16,7 +19,17 @@ class Umkm extends Model
         'jumlah_ulasan',
         'latitude',
         'longitude',
+        'slug'
     ];
+
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'nama_usaha'
+            ]
+        ];
+    }
 
     public function subdistrict()
     {

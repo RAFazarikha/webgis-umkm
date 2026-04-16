@@ -113,8 +113,8 @@ class MainController extends Controller
         $umkms = Umkm::with('subdistrict')
             ->when($search, function ($q) use ($search) {
                 $q->where('nama_usaha', 'like', "%{$search}%")
-                  ->orWhere('kategori', 'like', "%{$search}%")
-                  ->orWhere('alamat', 'like', "%{$search}%");
+                    ->orWhere('kategori', 'like', "%{$search}%")
+                    ->orWhere('alamat', 'like', "%{$search}%");
             })
             ->orderBy('created_at', 'desc')
             ->orderBy('id', 'desc')
@@ -128,7 +128,7 @@ class MainController extends Controller
         return view('tentang');
     }
 
-    public function view(Request $request, $id)
+    public function view(Request $request, $slug)
     {
         $kecamatan = $request->input('kecamatan') ?: 'all';
         $kategori = $request->input('kategori') ?: 'all';
@@ -140,8 +140,9 @@ class MainController extends Controller
             'clusterResultAll' => function ($q) use ($filterKey) {
                 $q->where('filter', $filterKey);
             }
-        ])->findOrFail($id);
-
+        ])
+        ->where('slug', $slug)
+        ->firstOrFail();
         return view('kuliner.view', compact('umkm'));
     }
 
