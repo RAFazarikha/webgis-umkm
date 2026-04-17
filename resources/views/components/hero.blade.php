@@ -7,7 +7,7 @@
             Discover Culinary Delights
         </h1>
         <div class="flex justify-center gap-4">
-            <a href="#" class="px-6 py-3 border border-white text-white rounded-lg hover:bg-white hover:text-[#111827] transition">
+            <a href="/tentang" class="px-6 py-3 border border-white text-white rounded-lg hover:bg-white hover:text-[#111827] transition">
                 Learn More
             </a>
             <a href="/map" class="px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition">
