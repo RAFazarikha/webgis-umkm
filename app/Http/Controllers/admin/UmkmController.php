@@ -173,6 +173,82 @@ class UmkmController extends Controller
         return back()->with('success', 'UMKM berhasil dihapus');
     }
 
+    // public function import(Request $request)
+    // {
+    //     $request->validate([
+    //         'file' => 'required|mimes:csv,txt|max:2048'
+    //     ]);
+
+    //     $file = $request->file('file');
+
+    //     if (($handle = fopen($file->getRealPath(), 'r')) !== false) {
+
+    //         $header = fgetcsv($handle, 1000, ';');
+
+    //         $expectedHeader = [
+    //             'nama_usaha',
+    //             'kategori',
+    //             'alamat',
+    //             'subdistrict_id',
+    //             'jam_buka',
+    //             'jam_tutup',
+    //             'rating',
+    //             'jumlah_ulasan',
+    //             'latitude',
+    //             'longitude',
+    //             'cluster_id',
+    //             'is_noise'
+    //         ];
+
+    //         // Validasi header
+    //         if ($header !== $expectedHeader) {
+    //             return back()->with('error', 'Format header CSV tidak sesuai.');
+    //         }
+
+    //         $data = [];
+    //         $slugsPelacak = [];
+
+    //         while (($row = fgetcsv($handle, 1000, ';')) !== false) {
+
+    //             $baseSlug = SlugService::createSlug(Umkm::class, 'slug', $row[0]);
+    //             $slugUnik = $baseSlug;
+    //             $counter = 1;
+
+    //             while (in_array($slugUnik, $slugsPelacak)) {
+    //                 $slugUnik = $baseSlug . '-' . $counter;
+    //                 $counter++;
+    //             }
+
+    //             $slugsPelacak[] = $slugUnik;
+
+    //             $data[] = [
+    //                 'nama_usaha'      => $row[0],
+    //                 'kategori'        => $row[1],
+    //                 'alamat'          => $row[2],
+    //                 'subdistrict_id'  => (int) $row[3],
+    //                 'jam_operasional' => ($row[4] && $row[5]) ? $row[4] . ' - ' . $row[5] : null,
+    //                 'rating'          => $row[6] !== '' ? (float) $row[6] : null,
+    //                 'jumlah_ulasan'   => $row[7] !== '' ? (int) $row[7] : null,
+    //                 'latitude'        => (float) $row[8],
+    //                 'longitude'       => (float) $row[9],
+    //                 'slug'            => $slugUnik,
+    //                 'created_at'      => now(),
+    //                 'updated_at'      => now(),
+    //             ];
+    //         }
+
+    //         fclose($handle);
+
+    //         // Insert batch
+    //         Umkm::insert($data);
+
+    //         return redirect()->route('admin.umkm.index')
+    //             ->with('success', 'Data CSV berhasil diimport.');
+    //     }
+
+    //     return back()->with('error', 'File tidak dapat dibaca.');
+    // }
+
     public function import(Request $request)
     {
         $request->validate([
@@ -200,27 +276,13 @@ class UmkmController extends Controller
                 'is_noise'
             ];
 
-            // Validasi header
             if ($header !== $expectedHeader) {
                 return back()->with('error', 'Format header CSV tidak sesuai.');
             }
 
             $data = [];
-            $slugsPelacak = [];
 
             while (($row = fgetcsv($handle, 1000, ';')) !== false) {
-
-                $baseSlug = SlugService::createSlug(Umkm::class, 'slug', $row[0]);
-                $slugUnik = $baseSlug;
-                $counter = 1;
-
-                while (in_array($slugUnik, $slugsPelacak)) {
-                    $slugUnik = $baseSlug . '-' . $counter;
-                    $counter++;
-                }
-
-                $slugsPelacak[] = $slugUnik;
-
                 $data[] = [
                     'nama_usaha'      => $row[0],
                     'kategori'        => $row[1],
@@ -231,16 +293,17 @@ class UmkmController extends Controller
                     'jumlah_ulasan'   => $row[7] !== '' ? (int) $row[7] : null,
                     'latitude'        => (float) $row[8],
                     'longitude'       => (float) $row[9],
-                    'slug'            => $slugUnik,
-                    'created_at'      => now(),
-                    'updated_at'      => now(),
                 ];
             }
 
             fclose($handle);
 
-            // Insert batch
-            Umkm::insert($data);
+            // Pakai create() per baris agar trait Sluggable aktif otomatis
+            foreach (array_chunk($data, 100) as $chunk) {
+                foreach ($chunk as $row) {
+                    Umkm::create($row);
+                }
+            }
 
             return redirect()->route('admin.umkm.index')
                 ->with('success', 'Data CSV berhasil diimport.');
