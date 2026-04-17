@@ -35,7 +35,7 @@ class GenerateSitemap extends Command
             ->setPriority(1.0)
             ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY));
 
-        $sitemap->add(Url::create('/peta-sebaran')
+        $sitemap->add(Url::create('/map')
             ->setPriority(0.9)
             ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY));
 
@@ -43,7 +43,7 @@ class GenerateSitemap extends Command
         // Menggunakan chunk agar memori server tetap aman jika data ribuan
         Umkm::chunk(200, function ($umkms) use ($sitemap) {
             foreach ($umkms as $umkm) {
-                $sitemap->add(Url::create("/umkm/{$umkm->slug}")
+                $sitemap->add(Url::create("/kuliner/{$umkm->slug}")
                     ->setLastModificationDate($umkm->updated_at)
                     ->setPriority(0.8)
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY));
