@@ -217,7 +217,7 @@ cluster: @json($clusterExists
                 address: @json($umkm->alamat),
                 open_hours: @json($umkm->jam_operasional ?? '-'),
                 cluster: @json(optional($umkm->clusterResultAll->first())->cluster ?? 'noise'),
-                detail_url: @json(route('kuliner.view', $umkm->id))
+                detail_url: @json(route('kuliner.view', $umkm->slug))
             },
             @endforeach
         ];
@@ -446,7 +446,7 @@ cluster: @json($clusterExists
                         district: selectedUmkm.subdistrict.name,
                         address: selectedUmkm.alamat,
                         open_hours: selectedUmkm.jam_operasional ?? '-',
-                        detail_url: `/kuliner/${selectedUmkm.id}` // Sesuaikan route sesuai struktur Anda
+                        detail_url: `/kuliner/${selectedUmkm.slug}` // Sesuaikan route sesuai struktur Anda
                     }
                 }));
             }
