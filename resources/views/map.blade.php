@@ -217,6 +217,7 @@ cluster: @json($clusterExists
                 address: @json($umkm->alamat),
                 open_hours: @json($umkm->jam_operasional ?? '-'),
                 cluster: @json(optional($umkm->clusterResultAll->first())->cluster ?? 'noise'),
+                slug: @json($umkm->slug),
                 detail_url: @json(route('kuliner.view', $umkm->slug))
             },
             @endforeach
