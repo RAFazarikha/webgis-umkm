@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Map - Peta Kuliner Sumenep')
+@section('title', 'Cluster - Peta Kuliner Sumenep')
 
 {{-- Menyiapkan variabel bantu agar penulisan lebih rapi --}}
 @php
@@ -20,74 +20,20 @@
 
 <section class="max-w-7xl mx-auto px-6 py-12">
     <div class="text-center mb-10">
-        <h1 class="text-4xl font-bold text-[#111827] mb-4">Peta Kuliner Sumenep</h1>
+        <h1 class="text-4xl font-bold text-[#111827] mb-4">Detail Cluster Kuliner Sumenep</h1>
         <p class="text-gray-500">Explore the island with ease.</p>
     </div>
 
-    <!-- Filters -->
-    <div x-data="filterHandler()" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-10">
-        <h2 class="text-2xl font-semibold text-[#111827] mb-6">Filters</h2>
-
-        <div class="grid md:grid-cols-2 gap-8">
-
-            <div>
-                <label class="block text-sm font-medium mb-2">Kecamatan</label>
-
-                <select x-model="kecamatan"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-
-                    <option value="all">Semua Kecamatan</option>
-
-                    @foreach($kecamatans as $kecamatanItem)
-                        <option value="{{ $kecamatanItem->name }}">
-                            {{ $kecamatanItem->name }}
-                        </option>
-                    @endforeach
-
-                </select>
-
-                <p class="text-xs text-gray-400 mt-1">Pilih kecamatan.</p>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium mb-2">Filter by</label>
-                <div class="flex flex-wrap gap-3">
-                    <template x-for="category in categories" :key="category">
-                        <button @click="toggle(category)"
-                            :class="selected === category
-                                ? 'bg-[#D92D20] text-white border-[#D92D20]'
-                                : 'bg-white text-gray-700 border-gray-300'"
-                            class="px-4 py-2 rounded-full border text-sm transition">
-                            <span x-text="category"></span>
-                        </button>
-                    </template>
-                </div>
-                <p class="text-xs text-gray-400 mt-1">Select categories.</p>
-            </div>
-        </div>
-
-        <div class="mt-6">
-            <button @click="applyFilter()"
-                class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-white border hover:border-[#111827] hover:text-[#111827] transition">
-                Apply Filters
-            </button>
-        </div>
-    </div>
-
-    <!-- Map -->
-    <div id="map" class="w-full h-[700px] rounded-2xl shadow-md border border-gray-200 z-10"></div>
-
     <!-- Filters Cluster -->
-    <div x-data="filterHandler()" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mt-10">
+    <div x-data="filterHandler()" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mt-10 mb-6">
         <h2 class="text-2xl font-semibold text-[#111827] mb-6">Filter Cluster</h2>
 
         <div class="grid md:grid-cols-1 gap-8">
             <div>
-                <form method="GET" action="/cluster">
 
                 <label class="block text-sm font-medium mb-2">Cluster</label>
 
-                <select x-model="cluster" name="cluster"
+                <select x-model="cluster"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg">
 
                     <option value="all">Semua Cluster</option>
@@ -108,12 +54,6 @@
         </div>
 
         <div class="mt-6">
-
-            <button class="me-2 px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition">
-                Lihat Detail Cluster
-            </button>
-
-            </form>
             <button @click="applyFilter()"
                 class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-white border hover:border-[#111827] hover:text-[#111827] transition">
                 Apply Filters
@@ -121,92 +61,56 @@
         </div>
     </div>
 
-    <!-- Sidebar Wrapper -->
-    <div x-data="sidebarHandler()" x-cloak class="z-[999]">
+    <!-- Map -->
+    <div id="map" class="w-full h-[500px] rounded-2xl shadow-md border border-gray-200 z-10"></div>
 
-        <!-- Backdrop -->
-        <div x-show="open"
-            x-transition.opacity
-            @click="close()"
-            class="fixed inset-0 bg-[#111827]/60 z-[998]">
-        </div>
-
-        <!-- Sidebar Panel -->
-        <div x-show="open"
-            @click.outside="close()"
-            x-transition:enter="transform transition ease-in-out duration-300"
-            x-transition:enter-start="translate-x-full"
-            x-transition:enter-end="translate-x-0"
-            x-transition:leave="transform transition ease-in-out duration-300"
-            x-transition:leave-start="translate-x-0"
-            x-transition:leave-end="translate-x-full"
-            class="fixed top-0 right-0 w-full md:w-[420px] h-full bg-white shadow-2xl z-[999] overflow-y-auto">
-
-            <!-- Header -->
-            <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                <h2 class="text-xl font-bold text-[#111827] capitalize" x-text="data.name"></h2>
-                <button @click="close()" class="text-gray-400 hover:text-[#D92D20] text-2xl">
-                    &times;
-                </button>
+    <!-- Culinary List -->
+    <div class="space-y-6 mt-6">
+        @foreach ($umkms as $umkm)
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col md:flex-row gap-6 items-center justify-center text-center md:text-left md:items-start md:justify-start">
+            <a href="{{ route('kuliner.view', $umkm->slug) }}">
+            <div class="w-full h-48 md:w-32 md:h-32 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden">
+                @if ($umkm->kategori == 'makanan_khas')
+                    <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/makanan-khas.webp') }}" alt="">
+                @elseif ($umkm->kategori == 'makanan_berat')
+                    <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/makanan-berat.webp') }}" alt="">
+                @elseif ($umkm->kategori == 'minuman')
+                    <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/minuman.webp') }}" alt="">
+                @else
+                <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/camilan.webp') }}" alt="">
+                @endif
             </div>
+            </a>
+            <div class="flex-1">
+                <a href="{{ route('kuliner.view', $umkm->slug) }}" class="text-xl font-semibold text-[#111827] mb-2 capitalize ">{{ $umkm->nama_usaha }}</a>
+                <p class="text-gray-500 mb-3">{{ $umkm->alamat }}</p>
+                <div class="flex gap-3 flex-wrap">
+                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">Rating : {{ $umkm->rating ?? "-" }}</span>
 
-            <!-- Content -->
-            <div class="p-6 space-y-6">
+                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">Jam Operasional : {{ $umkm->jam_operasional ?? "-" }}</span>
 
-                <div class="w-full h-52 bg-gray-200 rounded-xl overflow-hidden">
+                    @if ($umkm->kategori == 'makanan_khas')
+                        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Makanan Khas</span>
+                    @elseif ($umkm->kategori == 'makanan_berat')
+                        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Makanan Berat</span>
+                    @elseif ($umkm->kategori == 'minuman')
+                        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Minuman</span>
+                    @else
+                        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Camilan/Oleh-oleh</span>
+                    @endif
 
-                    <template x-if="data.category === 'makanan_khas'">
-                        <img :src="'{{ asset('images/makanan-khas.webp') }}'" class="w-full h-full object-cover" alt="">
-                    </template>
-
-                    <template x-if="data.category === 'makanan_berat'">
-                        <img :src="'{{ asset('images/makanan-berat.webp') }}'" class="w-full h-full object-cover" alt="">
-                    </template>
-
-                    <template x-if="data.category === 'minuman'">
-                        <img :src="'{{ asset('images/minuman.webp') }}'" class="w-full h-full object-cover" alt="">
-                    </template>
-
-                    <template x-if="data.category === 'camilan_oleh_oleh'">
-                        <img :src="'{{ asset('images/camilan.webp') }}'" class="w-full h-full object-cover" alt="">
-                    </template>
-
+                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">{{ $umkm->subdistrict->name }}</span>
                 </div>
-
-                <div class="flex gap-2 flex-wrap">
-                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]"
-                        x-text="data.district"></span>
-                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]"
-                        x-text="data.category"></span>
-                </div>
-
-                <p class="text-sm text-gray-600 leading-relaxed"
-                x-text="data.description"></p>
-
-                <div class="text-sm space-y-2">
-                    <div>
-                        <span class="font-semibold text-[#111827]">Alamat:</span>
-                        <span class="text-gray-600" x-text="data.address"></span>
-                    </div>
-                    <div>
-                        <span class="font-semibold text-[#111827]">Jam:</span>
-                        <span class="text-gray-600" x-text="data.open_hours"></span>
-                    </div>
-                    <div>
-                        <span class="font-semibold text-[#111827]">Cluster:</span>
-                        <span class="text-gray-600" x-text="data.cluster"></span>
-                    </div>
-                </div>
-
-                <a :href="data.detail_url"
-                class="block text-center px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition">
-                Lihat Detail
-                </a>
-
             </div>
         </div>
-
+        @endforeach
     </div>
+
+    <!-- Pagination (UI Ready) -->
+    <div class="mt-12">
+        {{ $umkms->links() }}
+    </div>
+
 </section>
 
 <style>
@@ -248,7 +152,7 @@
         }).addTo(map);
 
         const locations = [
-            @foreach($umkms as $umkm)
+            @foreach($umkmsForMap as $umkm)
             {
                 lat: {{ $umkm->latitude }},
                 lng: {{ $umkm->longitude }},
@@ -541,79 +445,24 @@
 
     });
 
-
-
     function filterHandler() {
 
         const urlParams = new URLSearchParams(window.location.search);
 
-        const kecamatanParam = urlParams.get('kecamatan') || 'all';
-        const kategoriParam = urlParams.get('kategori') || 'all';
         const clusterParam = urlParams.get('cluster') || 'all';
 
-        const reverseCategoryMap = {
-            'makanan_berat': 'Makanan Berat',
-            'makanan_khas': 'Makanan Khas',
-            'camilan_oleh_oleh': 'Camilan/Oleh-Oleh',
-            'minuman': 'Minuman'
-        };
-
         return {
-            kecamatan: kecamatanParam,
             cluster: clusterParam,
-            categories: ['Makanan Berat', 'Camilan/Oleh-Oleh', 'Makanan Khas', 'Minuman'],
-            selected: kategoriParam !== 'all'
-                ? reverseCategoryMap[kategoriParam]
-                : 'all',
-
-            toggle(category) {
-                if (this.selected === category) {
-                    this.selected = 'all';
-                } else {
-                    this.selected = category;
-                }
-            },
 
             applyFilter() {
-
-                const categoryMap = {
-                    'Makanan Berat': 'makanan_berat',
-                    'Makanan Khas': 'makanan_khas',
-                    'Camilan/Oleh-Oleh': 'camilan_oleh_oleh',
-                    'Minuman': 'minuman'
-                };
-
-                let kategori = this.selected !== 'all'
-                    ? categoryMap[this.selected]
-                    : 'all';
 
                 let cluster = this.cluster !== 'all' ? this.cluster : 'all';
 
                 const params = new URLSearchParams({
-                    cluster: this.cluster,
-                    kecamatan: this.kecamatan,
-                    kategori: kategori
+                    cluster: this.cluster
                 });
 
-                window.location.href = `/map?${params.toString()}`
-            }
-        }
-    }
-
-    function sidebarHandler() {
-        return {
-            open: false,
-            data: {},
-
-            init() {
-                window.addEventListener('open-sidebar', (event) => {
-                    this.data = event.detail;
-                    this.open = true;
-                });
-            },
-
-            close() {
-                this.open = false;
+                window.location.href = `/cluster?${params.toString()}`
             }
         }
     }

@@ -17,6 +17,8 @@ Route::get('/kuliner/{slug}', [MainController::class, 'view'])->name('kuliner.vi
 
 Route::get('/cari', [MainController::class, 'cari'])->name('cari');
 
+Route::get('/cluster', [MainController::class, 'cluster'])->name('cluster');
+
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('admin')

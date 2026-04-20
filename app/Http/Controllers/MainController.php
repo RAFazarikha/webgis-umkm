@@ -20,10 +20,11 @@ class MainController extends Controller
 
     public function map(Request $request)
     {
-        $kecamatan = $request->input('kecamatan') ?: 'all';
-        $kategori = $request->input('kategori') ?: 'all';
-        // $kecamatan = 'all';
-        // $kategori = 'all';
+        // Menggunakan parameter default dari Laravel, aman untuk nilai "0"
+        $kecamatan = $request->input('kecamatan', 'all');
+        $kategori = $request->input('kategori', 'all');
+        $cluster = $request->input('cluster', 'all');
+
         $search = $request->input('search');
 
         $filterKey = "kec_{$kecamatan}_kat_{$kategori}";
@@ -31,12 +32,14 @@ class MainController extends Controller
         // cek apakah ada hasil cluster
         $clusterExists = ClusterResult::where('filter', $filterKey)->exists();
 
-        if ($clusterExists) {
+        // Tentukan filter key mana yang akan diload (yang spesifik atau yang all)
+        $activeFilterKey = $clusterExists ? $filterKey : "kec_all_kat_all";
 
-            $umkms = Umkm::with([
+        // Query Utama (Digabung agar tidak mengulang if-else yang isinya sama)
+        $umkms = Umkm::with([
                 'subdistrict',
-                'clusterResultAll' => function ($q) use ($filterKey) {
-                    $q->where('filter', $filterKey);
+                'clusterResultAll' => function ($q) use ($activeFilterKey) {
+                    $q->where('filter', $activeFilterKey);
                 }
             ])
             ->when($kecamatan !== 'all', function ($q) use ($kecamatan) {
@@ -47,29 +50,18 @@ class MainController extends Controller
             ->when($kategori !== 'all', function ($q) use ($kategori) {
                 $q->where('kategori', $kategori);
             })
-            ->when($clusterExists, function ($q) use ($filterKey) {
-                $q->whereHas('clusterResultAll', function ($q2) use ($filterKey) {
-                    $q2->where('filter', $filterKey);
-                });
-            })
-            ->get();
+            ->when($cluster !== 'all', function ($q) use ($cluster) {
+                $q->whereHas('clusterResultAll', function ($q2) use ($cluster) {
+                    // Sesuai kode Anda, filter cluster mengambil dari kec_all_kat_all
+                    $q2->where('filter', 'kec_all_kat_all');
 
-        } else {
-            $filterKey = "kec_all_kat_all";
-
-            $umkms = Umkm::with([
-                'subdistrict',
-                'clusterResultAll' => function ($q) use ($filterKey) {
-                    $q->where('filter', $filterKey);
-                }
-            ])
-            ->when($kecamatan !== 'all', function ($q) use ($kecamatan) {
-                $q->whereHas('subdistrict', function ($sub) use ($kecamatan) {
-                    $sub->where('name', $kecamatan);
+                    if ($cluster === 'noise') {
+                        $q2->where('is_noise', true);
+                    } else {
+                        // Cast ke (int) untuk memastikan tipe data cocok dengan database
+                        $q2->where('cluster', (int) $cluster);
+                    }
                 });
-            })
-            ->when($kategori !== 'all', function ($q) use ($kategori) {
-                $q->where('kategori', $kategori);
             })
             ->when($clusterExists, function ($q) use ($filterKey) {
                 $q->whereHas('clusterResultAll', function ($q2) use ($filterKey) {
@@ -78,21 +70,12 @@ class MainController extends Controller
             })
             ->get();
 
-        }
-
-        // =========================
-        // SEARCH UMKM
-        // =========================
-
-        // $selectedUmkm = null;
-
-        // if ($search) {
-
-        //     $selectedUmkm = Umkm::with('subdistrict')
-        //         ->where('nama_usaha','like',"%{$search}%")
-        //         ->first();
-
-        // }
+        // Mengambil daftar list cluster
+        $clusters = ClusterResult::where('filter', 'kec_all_kat_all')
+            ->whereNotNull('cluster')
+            ->distinct()
+            ->orderBy('cluster', 'asc')
+            ->pluck('cluster');
 
         $kecamatans = Subdistrict::all();
 
@@ -102,7 +85,7 @@ class MainController extends Controller
             'kecamatan',
             'kategori',
             'clusterExists',
-            // 'selectedUmkm'
+            'clusters'
         ));
     }
 
@@ -155,10 +138,41 @@ class MainController extends Controller
             ->orWhere('alamat', 'like', "%{$query}%")
             ->with('subdistrict')
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         $kecamatans = Subdistrict::all();
 
         return view('cari', compact('umkms', 'kecamatans'));
+    }
+
+    public function cluster(Request $request)
+    {
+        $query = $request->input('cluster');
+
+        $umkms = Umkm::whereHas('clusterResultAll', function ($q) use ($query) {
+            $q->where('cluster', $query);
+            })
+            ->with('subdistrict')
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        $kecamatans = Subdistrict::all();
+
+        $umkmsForMap = Umkm::whereHas('clusterResultAll', function ($q) use ($query) {
+            $q->where('cluster', $query);
+            })
+            ->with('subdistrict')
+            ->latest()
+            ->get();
+
+        $clusters = ClusterResult::where('filter', 'kec_all_kat_all')
+            ->whereNotNull('cluster')
+            ->distinct()
+            ->orderBy('cluster', 'asc')
+            ->pluck('cluster');
+
+        return view('cluster', compact('umkms', 'kecamatans', 'clusters', 'umkmsForMap'));
     }
 }
