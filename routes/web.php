@@ -15,6 +15,8 @@ Route::get('/tentang', [MainController::class, 'tentang'])->name('tentang');
 
 Route::get('/kuliner/{slug}', [MainController::class, 'view'])->name('kuliner.view');
 
+Route::get('/cari', [MainController::class, 'cari'])->name('cari');
+
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('admin')

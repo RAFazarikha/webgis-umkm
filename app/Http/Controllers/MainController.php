@@ -84,15 +84,15 @@ class MainController extends Controller
         // SEARCH UMKM
         // =========================
 
-        $selectedUmkm = null;
+        // $selectedUmkm = null;
 
-        if ($search) {
+        // if ($search) {
 
-            $selectedUmkm = Umkm::with('subdistrict')
-                ->where('nama_usaha','like',"%{$search}%")
-                ->first();
+        //     $selectedUmkm = Umkm::with('subdistrict')
+        //         ->where('nama_usaha','like',"%{$search}%")
+        //         ->first();
 
-        }
+        // }
 
         $kecamatans = Subdistrict::all();
 
@@ -102,7 +102,7 @@ class MainController extends Controller
             'kecamatan',
             'kategori',
             'clusterExists',
-            'selectedUmkm'
+            // 'selectedUmkm'
         ));
     }
 
@@ -146,9 +146,9 @@ class MainController extends Controller
         return view('kuliner.view', compact('umkm'));
     }
 
-    public function search(Request $request)
+    public function cari(Request $request)
     {
-        $query = $request->input('query');
+        $query = $request->input('search');
 
         $umkms = Umkm::where('nama_usaha', 'like', "%{$query}%")
             ->orWhere('kategori', 'like', "%{$query}%")
@@ -157,6 +157,8 @@ class MainController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('kuliner', compact('umkms'));
+        $kecamatans = Subdistrict::all();
+
+        return view('cari', compact('umkms', 'kecamatans'));
     }
 }

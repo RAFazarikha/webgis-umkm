@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Map - Peta Kuliner Sumenep')
+@section('title', 'Cari - Peta Kuliner Sumenep')
 
 {{-- Menyiapkan variabel bantu agar penulisan lebih rapi --}}
 @php
@@ -24,146 +24,94 @@
         <p class="text-gray-500">Explore the island with ease.</p>
     </div>
 
-    <!-- Filters -->
-    <div x-data="filterHandler()" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-10">
-        <h2 class="text-2xl font-semibold text-[#111827] mb-6">Filters</h2>
-
-        <div class="grid md:grid-cols-2 gap-8">
-            <div>
-                <label class="block text-sm font-medium mb-2">Kecamatan</label>
-
-                <select x-model="kecamatan"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-
-                    <option value="all">Semua Kecamatan</option>
-
-                    @foreach($kecamatans as $kecamatanItem)
-                        <option value="{{ $kecamatanItem->name }}">
-                            {{ $kecamatanItem->name }}
-                        </option>
-                    @endforeach
-
-                </select>
-
-                <p class="text-xs text-gray-400 mt-1">Pilih kecamatan.</p>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium mb-2">Filter by</label>
-                <div class="flex flex-wrap gap-3">
-                    <template x-for="category in categories" :key="category">
-                        <button @click="toggle(category)"
-                            :class="selected === category
-                                ? 'bg-[#D92D20] text-white border-[#D92D20]'
-                                : 'bg-white text-gray-700 border-gray-300'"
-                            class="px-4 py-2 rounded-full border text-sm transition">
-                            <span x-text="category"></span>
-                        </button>
-                    </template>
+    <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm mb-6">
+        <form action="/cari" method="GET" class="grid md:grid-cols-3 gap-6 items-end">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium mb-2">Search</label>
+                <div class="relative">
+                    <input type="text" name="search" placeholder="Search for culinary spots..."
+                        value="{{ request('search') }}"
+                        class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F59E0B] focus:border-[#F59E0B]" />
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-5 h-5 absolute right-4 top-1/2 -translate-y-1/2 text-[#111827]"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-4.35-4.35m1.6-5.4a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                 </div>
-                <p class="text-xs text-gray-400 mt-1">Select categories.</p>
             </div>
-        </div>
 
-        <div class="mt-6">
-            <button @click="applyFilter()"
-                class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-white border hover:border-[#111827] hover:text-[#111827] transition">
-                Apply Filters
-            </button>
-        </div>
+            <div>
+                <button type="submit"
+                    class="w-full px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-[#F59E0B] transition font-medium">
+                    Search
+                </button>
+            </div>
+        </form>
     </div>
 
     <!-- Map -->
-    <div id="map" class="w-full h-[700px] rounded-2xl shadow-md border border-gray-200 z-10"></div>
+    <div id="map" class="w-full h-[500px] rounded-2xl shadow-md border border-gray-200 z-10"></div>
 
-    <!-- Sidebar Wrapper -->
-    <div x-data="sidebarHandler()" x-cloak class="z-[999]">
-
-        <!-- Backdrop -->
-        <div x-show="open"
-            x-transition.opacity
-            @click="close()"
-            class="fixed inset-0 bg-[#111827]/60 z-[998]">
-        </div>
-
-        <!-- Sidebar Panel -->
-        <div x-show="open"
-            @click.outside="close()"
-            x-transition:enter="transform transition ease-in-out duration-300"
-            x-transition:enter-start="translate-x-full"
-            x-transition:enter-end="translate-x-0"
-            x-transition:leave="transform transition ease-in-out duration-300"
-            x-transition:leave-start="translate-x-0"
-            x-transition:leave-end="translate-x-full"
-            class="fixed top-0 right-0 w-full md:w-[420px] h-full bg-white shadow-2xl z-[999] overflow-y-auto">
-
-            <!-- Header -->
-            <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                <h2 class="text-xl font-bold text-[#111827] capitalize" x-text="data.name"></h2>
-                <button @click="close()" class="text-gray-400 hover:text-[#D92D20] text-2xl">
-                    &times;
-                </button>
+    <!-- Culinary List -->
+    <div class="space-y-6 mt-6">
+        @foreach ($umkms as $umkm)
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col md:flex-row gap-6 items-center justify-center text-center md:text-left md:items-start md:justify-start">
+            <a href="{{ route('kuliner.view', $umkm->slug) }}">
+            <div class="w-full h-48 md:w-32 md:h-32 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden">
+                @if ($umkm->kategori == 'makanan_khas')
+                    <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/makanan-khas.webp') }}" alt="">
+                @elseif ($umkm->kategori == 'makanan_berat')
+                    <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/makanan-berat.webp') }}" alt="">
+                @elseif ($umkm->kategori == 'minuman')
+                    <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/minuman.webp') }}" alt="">
+                @else
+                <img class="w-full h-full object-cover rounded-xl" src="{{ asset('images/camilan.webp') }}" alt="">
+                @endif
             </div>
+            </a>
+            <div class="flex-1">
+                <a href="{{ route('kuliner.view', $umkm->slug) }}" class="text-xl font-semibold text-[#111827] mb-2 capitalize ">{{ $umkm->nama_usaha }}</a>
+                <p class="text-gray-500 mb-3">{{ $umkm->alamat }}</p>
+                <div class="flex gap-3 flex-wrap">
+                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">Rating : {{ $umkm->rating ?? "-" }}</span>
 
-            <!-- Content -->
-            <div class="p-6 space-y-6">
+                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]">Jam Operasional : {{ $umkm->jam_operasional ?? "-" }}</span>
 
-                <div class="w-full h-52 bg-gray-200 rounded-xl overflow-hidden">
+                    @if ($umkm->kategori == 'makanan_khas')
+                        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Makanan Khas</span>
+                    @elseif ($umkm->kategori == 'makanan_berat')
+                        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Makanan Berat</span>
+                    @elseif ($umkm->kategori == 'minuman')
+                        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Minuman</span>
+                    @else
+                        <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">Camilan/Oleh-oleh</span>
+                    @endif
 
-                    <template x-if="data.category === 'makanan_khas'">
-                        <img :src="'{{ asset('images/makanan-khas.webp') }}'" class="w-full h-full object-cover" alt="">
-                    </template>
-
-                    <template x-if="data.category === 'makanan_berat'">
-                        <img :src="'{{ asset('images/makanan-berat.webp') }}'" class="w-full h-full object-cover" alt="">
-                    </template>
-
-                    <template x-if="data.category === 'minuman'">
-                        <img :src="'{{ asset('images/minuman.webp') }}'" class="w-full h-full object-cover" alt="">
-                    </template>
-
-                    <template x-if="data.category === 'camilan_oleh_oleh'">
-                        <img :src="'{{ asset('images/camilan.webp') }}'" class="w-full h-full object-cover" alt="">
-                    </template>
-
+                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]">{{ $umkm->subdistrict->name }}</span>
                 </div>
-
-                <div class="flex gap-2 flex-wrap">
-                    <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-[#F59E0B]"
-                        x-text="data.district"></span>
-                    <span class="text-xs px-3 py-1 rounded-full bg-red-100 text-[#D92D20]"
-                        x-text="data.category"></span>
-                </div>
-
-                <p class="text-sm text-gray-600 leading-relaxed"
-                x-text="data.description"></p>
-
-                <div class="text-sm space-y-2">
-                    <div>
-                        <span class="font-semibold text-[#111827]">Alamat:</span>
-                        <span class="text-gray-600" x-text="data.address"></span>
-                    </div>
-                    <div>
-                        <span class="font-semibold text-[#111827]">Jam:</span>
-                        <span class="text-gray-600" x-text="data.open_hours"></span>
-                    </div>
-                    <div>
-                        <span class="font-semibold text-[#111827]">Cluster:</span>
-                        <span class="text-gray-600" x-text="data.cluster"></span>
-                    </div>
-                </div>
-
-                <a :href="data.detail_url"
-                class="block text-center px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition">
-                Lihat Detail
-                </a>
-
             </div>
         </div>
-
+        @endforeach
     </div>
-</section>
 
+    <!-- Pagination (UI Ready) -->
+    <div class="mt-12">
+        {{-- <nav class="flex items-center gap-2">
+            <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-100">Prev</button>
+            <button class="px-4 py-2 bg-[#D92D20] text-white rounded-lg text-sm">1</button>
+            <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-100">2</button>
+            <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-100">Next</button>
+        </nav> --}}
+        {{ $umkms->links() }}
+    </div>
+
+</section>
+{{--
+cluster: @json($clusterExists
+                    ? (optional($umkm->clusterResultAll->first())->cluster ?? 'noise')
+                    : 'data belum di cluster'),
+--}}
 <style>
     .legend {
         background: white;
@@ -223,7 +171,7 @@
         function getDynamicRadius(isActive = false) {
             const zoom = map.getZoom();
             // Contoh perhitungan: di zoom 12, radius normal = 4. Batas minimum radius = 2.
-            const normalRadius = Math.max(2, zoom - 8);
+            const normalRadius = Math.max(2, zoom - 4);
 
             // Jika marker sedang aktif, ukurannya 2x lipat lebih besar
             return isActive ? normalRadius * 2 : normalRadius;
@@ -233,7 +181,7 @@
             // reset marker sebelumnya
             if (activeMarker) {
                 activeMarker.setStyle({
-                    radius: getDynamicRadius(false),
+                    radius: getDynamicRadius(false), // Gunakan fungsi dinamis
                     color: "#ffffff",
                     weight: 1,
                     fillOpacity: 0.9
@@ -242,8 +190,8 @@
 
             // set marker baru jadi aktif
             marker.setStyle({
-                radius: getDynamicRadius(true),              // lebih besar
-                color: "#000000",       // outline beda
+                radius: getDynamicRadius(true),  // Gunakan fungsi dinamis (aktif)
+                color: "#000000",
                 weight: 2,
                 fillOpacity: 1
             });
@@ -370,15 +318,11 @@
                 weight: 1,
                 fillOpacity: 0.9
             })
-            .bindTooltip(`<b class="capitalize">${loc.name}</b><br>Cluster: ${loc.cluster}`, {
-                pane: 'tooltipPaneCustom'
-            })
+            .bindPopup(`<b class="capitalize">${loc.name}</b><br>Cluster: ${loc.cluster}`)
             .on('click', function () {
                 highlightMarker(this);
-                window.dispatchEvent(new CustomEvent('open-sidebar', {
-                    detail: loc
-                }));
-            });
+            })
+            .openPopup();
 
             markerIndex[loc.name] = marker;
             umkmLayer.addLayer(marker);
@@ -416,7 +360,6 @@
             div.style.padding = "8px";
             div.style.borderRadius = "5px";
             div.style.boxShadow = "0 0 15px rgba(0,0,0,0.2)";
-            div.style.marginBottom = "70px";
 
             div.innerHTML += "<b style='margin-bottom:5px; display:block;'>Jumlah UMKM</b>";
 
@@ -448,123 +391,8 @@
             });
         });
 
-        // ===============================
-        // LEGENDA CLUSTER UMKM (Kiri Bawah, Memanjang)
-        // ===============================
-
-        const clusterLegend = L.control({ position: "bottomleft" });
-
-        clusterLegend.onAdd = function () {
-            const div = L.DomUtil.create("div", "info legend cluster-legend");
-
-            // CSS in-line untuk container utama agar memanjang ke kanan (Flexbox)
-            div.style.backgroundColor = "white";
-            div.style.padding = "8px 15px";
-            div.style.borderRadius = "5px";
-            div.style.boxShadow = "0 0 15px rgba(0,0,0,0.2)";
-            div.style.display = "flex";          // Membuat konten berjejer horizontal
-            div.style.alignItems = "center";     // Rata tengah vertikal
-            div.style.flexWrap = "wrap";         // Turun ke baris baru jika layar sempit
-            div.style.gap = "15px";              // Jarak antar item
-            div.style.marginRight = "10px";
-
-            // Judul Legenda
-            let htmlContent = "<b style='margin-right: 5px;'>Cluster UMKM:</b>";
-
-            // 1. Ambil daftar nama cluster yang unik dari array 'locations'
-            const uniqueClusters = [...new Set(locations.map(item => item.cluster))];
-
-            // 2. Looping setiap cluster untuk membuat item legendanya
-            uniqueClusters.forEach(cluster => {
-                // Gunakan fungsi getClusterColor yang sama dengan marker
-                const color = typeof getClusterColor === 'function' ? getClusterColor(cluster) : '#3388ff';
-
-                // Tambahkan elemen warna dan teks untuk setiap cluster
-                htmlContent += `
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <i style="background: ${color}; width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 1px solid #999;"></i>
-                        <span style="font-size: 13px; text-transform: capitalize;">${cluster}</span>
-                    </div>
-                `;
-            });
-
-            div.innerHTML = htmlContent;
-            return div;
-        };
-
-        clusterLegend.addTo(map);
-
     });
 
-
-
-    function filterHandler() {
-
-        const urlParams = new URLSearchParams(window.location.search);
-
-        const kecamatanParam = urlParams.get('kecamatan') || 'all';
-        const kategoriParam = urlParams.get('kategori') || 'all';
-
-        const reverseCategoryMap = {
-            'makanan_berat': 'Makanan Berat',
-            'makanan_khas': 'Makanan Khas',
-            'camilan_oleh_oleh': 'Camilan/Oleh-Oleh'
-        };
-
-        return {
-            kecamatan: kecamatanParam,
-            categories: ['Makanan Berat', 'Camilan/Oleh-Oleh', 'Makanan Khas'],
-            selected: kategoriParam !== 'all'
-                ? reverseCategoryMap[kategoriParam]
-                : 'all',
-
-            toggle(category) {
-                if (this.selected === category) {
-                    this.selected = 'all';
-                } else {
-                    this.selected = category;
-                }
-            },
-
-            applyFilter() {
-
-                const categoryMap = {
-                    'Makanan Berat': 'makanan_berat',
-                    'Makanan Khas': 'makanan_khas',
-                    'Camilan/Oleh-Oleh': 'camilan_oleh_oleh'
-                };
-
-                let kategori = this.selected !== 'all'
-                    ? categoryMap[this.selected]
-                    : 'all';
-
-                const params = new URLSearchParams({
-                    kecamatan: this.kecamatan,
-                    kategori: kategori
-                });
-
-                window.location.href = `/map?${params.toString()}`
-            }
-        }
-    }
-
-    function sidebarHandler() {
-        return {
-            open: false,
-            data: {},
-
-            init() {
-                window.addEventListener('open-sidebar', (event) => {
-                    this.data = event.detail;
-                    this.open = true;
-                });
-            },
-
-            close() {
-                this.open = false;
-            }
-        }
-    }
 
     function getClusterColor(cluster) {
 
