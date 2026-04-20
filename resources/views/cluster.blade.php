@@ -317,17 +317,13 @@
                 fillColor: markerColor,
                 color: "#ffffff",
                 weight: 1,
-                fillOpacity: 1
+                fillOpacity: 0.9
             })
-            .bindTooltip(`<b class="capitalize">${loc.name}</b><br>Cluster: ${loc.cluster}`, {
-                pane: 'tooltipPaneCustom'
-            })
+            .bindPopup(`<b class="capitalize">${loc.name}</b><br>Cluster: ${loc.cluster}`)
             .on('click', function () {
                 highlightMarker(this);
-                window.dispatchEvent(new CustomEvent('open-sidebar', {
-                    detail: loc
-                }));
-            });
+            })
+            .openPopup();
 
             markerIndex[loc.name] = marker;
             umkmLayer.addLayer(marker);
