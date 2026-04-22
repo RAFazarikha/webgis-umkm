@@ -9,6 +9,8 @@ class Umkm extends Model
 {
     use Sluggable;
 
+    protected $table = 'umkms';
+
     protected $fillable = [
         'nama_usaha',
         'kategori',

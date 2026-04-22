@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Subdistrict extends Model
 {
+    protected $table = 'subdistricts';
+
     protected $fillable = ['name'];
 
     public function umkms()
