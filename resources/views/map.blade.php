@@ -19,9 +19,9 @@
 @section('content')
 
 <section class="max-w-7xl mx-auto px-6 py-12">
-    <div class="text-center mb-10">
+    <div class="text-center mb-10 justify-center items-center">
         <h1 class="text-4xl font-bold text-[#111827] mb-4">Peta Kuliner Sumenep</h1>
-        <p class="text-gray-500">Explore the island with ease.</p>
+        <p class="text-gray-500 max-w-2xl text-center mx-auto">Penerapan algoritma DBSCAN pada {{ $umkms->count() }} data UMKM kuliner berhasil membentuk cluster dengan mengonfigurasi parameter epsilon sebesar {{ $epsilon }} dan MinPts sebanyak {{ $minpts }}.</p>
     </div>
 
     <!-- Filters -->

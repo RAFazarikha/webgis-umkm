@@ -79,13 +79,18 @@ class MainController extends Controller
 
         $kecamatans = Subdistrict::all();
 
+        $epsilon = ClusterResult::distinct()->pluck('eps')->first();
+        $minpts = ClusterResult::distinct()->pluck('min_samples')->first();
+
         return view('map', compact(
             'umkms',
             'kecamatans',
             'kecamatan',
             'kategori',
             'clusterExists',
-            'clusters'
+            'clusters',
+            'epsilon',
+            'minpts'
         ));
     }
 

@@ -55,6 +55,9 @@
 
     <!-- Culinary List -->
     <div class="space-y-6 mt-6">
+        @if ($umkms->isEmpty())
+            <p class="text-gray-500 text-center">- Data UMKM Kuliner tidak ditemukan -</p>
+        @endif
         @foreach ($umkms as $umkm)
         <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition flex flex-col md:flex-row gap-6 items-center justify-center text-center md:text-left md:items-start md:justify-start">
             <a href="{{ route('kuliner.view', $umkm->slug) }}">
