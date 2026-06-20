@@ -37,6 +37,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/umkm/grid-search', [UmkmController::class, 'gridSearch'])->name('umkm.grid-search');
 
             Route::post('/admin/umkm/k-distance', [UmkmController::class, 'kDistance'])->name('umkm.k-distance');
+
+            Route::get('/admin/umkm/cluster-results', [UmkmController::class, 'clusterResults'])->name('umkm.cluster-results');
         });
 });
 

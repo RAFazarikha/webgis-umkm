@@ -578,4 +578,34 @@ class UmkmController extends Controller
             ->with('k_distance_response', $result['data'])
             ->with('success', 'Analisis K-Distance Graph berhasil diselesaikan.');
     }
+
+    public function clusterResults()
+    {
+        // 1. Data Daratan Utama
+        $filterDaratan = 'wil_daratan_utama_kec_all_kat_all';
+        $summaryDaratan = ClusterResult::where('filter', $filterDaratan)->first();
+
+        $clustersDaratan = ClusterResult::select('cluster', 'is_noise', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->where('filter', $filterDaratan)
+            ->groupBy('cluster', 'is_noise')
+            ->orderBy('is_noise') // Menempatkan cluster di atas, noise di bawah
+            ->orderBy('cluster')
+            ->get();
+
+        // 2. Data Kepulauan
+        $filterKepulauan = 'wil_kepulauan_kec_all_kat_all';
+        $summaryKepulauan = ClusterResult::where('filter', $filterKepulauan)->first();
+
+        $clustersKepulauan = ClusterResult::select('cluster', 'is_noise', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->where('filter', $filterKepulauan)
+            ->groupBy('cluster', 'is_noise')
+            ->orderBy('is_noise')
+            ->orderBy('cluster')
+            ->get();
+
+        return view('admin.umkm.cluster-results', compact(
+            'summaryDaratan', 'clustersDaratan',
+            'summaryKepulauan', 'clustersKepulauan'
+        ));
+    }
 }
