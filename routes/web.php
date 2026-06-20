@@ -22,21 +22,22 @@ Route::get('/cluster', [MainController::class, 'cluster'])->name('cluster');
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('admin')
-    ->middleware(['auth'])
-    ->name('admin.')
-    ->group(function () {
+        ->middleware(['auth'])
+        ->name('admin.')
+        ->group(function () {
 
-        Route::get('/dashboard', [UmkmController::class, 'dashboard'])->name('dashboard');
+            Route::get('/dashboard', [UmkmController::class, 'dashboard'])->name('dashboard');
 
-        Route::resource('umkm', UmkmController::class);
+            Route::resource('umkm', UmkmController::class);
 
-        Route::post('/umkm/import', [UmkmController::class, 'import'])->name('umkm.import');
+            Route::post('/umkm/import', [UmkmController::class, 'import'])->name('umkm.import');
 
-        Route::post('/umkm/clustering', [UmkmController::class, 'runClustering'])->name('umkm.clustering');
+            Route::post('/umkm/clustering', [UmkmController::class, 'runClustering'])->name('umkm.clustering');
 
-        Route::post('/umkm/grid-search', [UmkmController::class, 'gridSearch'])->name('umkm.grid-search');
-    });
+            Route::post('/umkm/grid-search', [UmkmController::class, 'gridSearch'])->name('umkm.grid-search');
 
+            Route::post('/admin/umkm/k-distance', [UmkmController::class, 'kDistance'])->name('umkm.k-distance');
+        });
 });
 
 Route::middleware('auth')->group(function () {
@@ -45,5 +46,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
-
+require __DIR__ . '/auth.php';

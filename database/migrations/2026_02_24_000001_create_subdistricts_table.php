@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('subdistricts', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->enum('kategori_wilayah', ['daratan_utama', 'kepulauan']);
+            $table->string('keterangan')->nullable();
             $table->timestamps();
         });
     }

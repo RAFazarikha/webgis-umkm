@@ -3,204 +3,448 @@
 
 @section('content')
 
-@php
-    $response = session('response');
-    $best = $response['best_parameter'] ?? null;
-@endphp
+    @php
+        $response = session('response');
+        $best = $response['best_parameter'] ?? null;
 
-@if(session('success'))
-    <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
-        {{ session('success') }}
+        // Menangkap session dari hasil k-distance
+        $kDistanceResponse = session('k_distance_response');
+    @endphp
+
+    @if (session('success'))
+        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+            {{ session('success') }}
+        </div>
+    @elseif(session('error'))
+        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <div class="mb-10">
+        <h1 class="text-3xl font-bold text-[#111827] mb-2">
+            Dashboard Admin
+        </h1>
+        <p class="text-gray-500">
+            Overview sistem WebGIS UMKM | Peta Kuliner Sumenep.
+        </p>
     </div>
-@elseif(session('error'))
-    <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
-        {{ session('error') }}
+
+    <div class="grid md:grid-cols-3 gap-6 mb-12">
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Total Keseluruhan UMKM</p>
+                    <h2 class="text-3xl font-bold text-[#111827]">
+                        {{ $totalUmkm }}
+                    </h2>
+                </div>
+                <span class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                        </path>
+                    </svg>
+                </span>
+            </div>
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                <div>
+                    <p class="text-xs text-gray-400">Daratan Utama</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ $umkmDaratan }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400">Kepulauan</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ $umkmKepulauan }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Total Keseluruhan Cluster</p>
+                    <h2 class="text-3xl font-bold text-[#F59E0B]">
+                        {{ $totalCluster }}
+                    </h2>
+                </div>
+                <span class="p-2 bg-yellow-50 text-yellow-600 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                        </path>
+                    </svg>
+                </span>
+            </div>
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                <div>
+                    <p class="text-xs text-gray-400">Daratan Utama</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ $clusterDaratan }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400">Kepulauan</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ $clusterKepulauan }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Total Keseluruhan Noise</p>
+                    <h2 class="text-3xl font-bold text-[#D92D20]">
+                        {{ $totalNoise }}
+                    </h2>
+                </div>
+                <span class="p-2 bg-red-50 text-red-600 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </span>
+            </div>
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                <div>
+                    <p class="text-xs text-gray-400">Daratan Utama</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ $noiseDaratan }}</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400">Kepulauan</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ $noiseKepulauan }}</p>
+                </div>
+            </div>
+        </div>
+
     </div>
-@endif
 
-<div class="mb-10">
-    <h1 class="text-3xl font-bold text-[#111827] mb-2">
-        Dashboard Admin
-    </h1>
-    <p class="text-gray-500">
-        Overview sistem WebGIS UMKM | Peta Kuliner Sumenep.
-    </p>
-</div>
+    <div x-data="umkmModal()" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-12">
 
-<!-- STAT CARDS -->
-<div class="grid md:grid-cols-4 gap-6 mb-12">
-
-    <!-- Total UMKM -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-        <p class="text-sm text-gray-500 mb-2">Jumlah UMKM</p>
-        <h2 class="text-3xl font-bold text-[#111827]">
-            {{ $totalUmkm }}
+        <h2 class="text-xl font-semibold text-[#111827] mb-6">
+            Manajemen Data UMKM
         </h2>
-    </div>
 
-    <!-- Cluster -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-        <p class="text-sm text-gray-500 mb-2">Jumlah Cluster</p>
-        <h2 class="text-3xl font-bold text-[#F59E0B]">
-            {{ $totalCluster }}
-        </h2>
-    </div>
+        <div class="flex flex-wrap gap-4">
 
-    <!-- Noise -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-        <p class="text-sm text-gray-500 mb-2">Jumlah Noise</p>
-        <h2 class="text-3xl font-bold text-[#D92D20]">
-            {{ $totalNoise }}
-        </h2>
-    </div>
+            <button @click="openModal('k_distance')"
+                class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-gray-800 transition shadow-sm">
+                Uji Coba K-Distance
+            </button>
 
-    <!-- Rating -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-        <p class="text-sm text-gray-500 mb-2">Rata-rata Rating</p>
-        <h2 class="text-3xl font-bold text-[#111827]">
-            {{ $avgRating ?? 0 }}
-        </h2>
-    </div>
+            <button @click="openModal('grid')"
+                class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-yellow-600 transition shadow-sm">
+                Optimasi Parameter
+            </button>
 
-</div>
+            <button @click="openModal('cluster')"
+                class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-yellow-600 transition shadow-sm">
+                Clusterisasi UMKM
+            </button>
 
-<!-- QUICK ACTION -->
-<div x-data="umkmModal()" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-12">
+            <a href="{{ route('admin.umkm.index') }}"
+                class="px-6 py-3 bg-white text-[#111827] rounded-lg hover:bg-gray-50 border border-gray-300 transition shadow-sm">
+                Lihat Data UMKM
+            </a>
 
-    <h2 class="text-xl font-semibold text-[#111827] mb-6">
-        Manajemen Data UMKM
-    </h2>
+            <a href="{{ route('admin.umkm.create') }}"
+                class="px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition shadow-sm">
+                Tambah UMKM
+            </a>
 
-    <div class="flex gap-4">
+        </div>
 
-        <button
-            @click="openModal('grid')"
-            class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-yellow-700 transition">
-            Optimasi Parameter
-        </button>
-
-        <button
-            @click="openModal('cluster')"
-            class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-yellow-700 transition">
-            Clusterisasi UMKM
-        </button>
-
-        <a href="{{ route('admin.umkm.index') }}"
-            class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-white border hover:border-[#111827] hover:text-[#111827] transition">
-            Lihat Data UMKM
-        </a>
-
-        <a href="{{ route('admin.umkm.create') }}"
-            class="px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition">
-            Tambah UMKM
-        </a>
+        @include('components.form-umkm-modal')
 
     </div>
 
-    @include('components.form-umkm-modal')
+    @if ($kDistanceResponse)
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-12">
 
-</div>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-semibold text-[#111827]">
+                    Hasil Analisis K-Distance Graph & Evaluasi DBSCAN
+                </h2>
+                <span class="px-3 py-1 bg-yellow-100 text-yellow-700 text-sm font-medium rounded-full">
+                    Jumlah Data: {{ $kDistanceResponse['total_data_diproses'] }}
+                </span>
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+                    K Rentang: {{ $kDistanceResponse['k_range'][0] }} - {{ $kDistanceResponse['k_range'][1] }}
+                </span>
+            </div>
 
-@if ($response)
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <div class="relative h-[400px] w-full mb-8 border border-gray-100 rounded-xl p-4 bg-gray-50/50">
+                <canvas id="kDistanceChart"></canvas>
+            </div>
 
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">
-        Hasil Uji Coba Parameter DBSCAN
-    </h2>
-
-    <div class="overflow-x-auto">
-        <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-
-            <thead class="bg-gray-100">
-                <tr class="text-left text-sm text-gray-600">
-                    <th class="px-4 py-3 border">No</th>
-                    <th class="px-4 py-3 border">EPS (km)</th>
-                    <th class="px-4 py-3 border">MinPts</th>
-                    <th class="px-4 py-3 border">Jumlah Cluster</th>
-                    <th class="px-4 py-3 border">Noise</th>
-                    <th class="px-4 py-3 border">Silhouette Score</th>
-                </tr>
-            </thead>
-
-            <tbody class="text-sm text-gray-700">
-
-                @foreach($response['results'] as $index => $row)
-
+            <div class="overflow-x-auto">
                 @php
-                    $isBest = $best &&
-                        $row['eps_km'] == $best['eps_km'] &&
-                        $row['min_samples'] == $best['min_samples'];
+                    // Cari nilai silhouette score tertinggi dari seluruh hasil uji coba K
+                    $bestKScore = collect($kDistanceResponse['results'])
+                        ->pluck('evaluasi_dbscan.silhouette_score')
+                        ->filter() // Buang nilai null jika ada error di salah satu K
+                        ->max();
                 @endphp
+                <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                    <thead class="bg-gray-100">
+                        <tr class="text-left text-sm text-[#111827] font-semibold">
+                            <th class="px-4 py-3 border-b">K (MinPts)</th>
+                            <th class="px-4 py-3 border-b">Rekomendasi EPS (km)</th>
+                            <th class="px-4 py-3 border-b">Titik Belok (Index)</th>
+                            <th class="px-4 py-3 border-b">Cluster Terbentuk</th>
+                            <th class="px-4 py-3 border-b">Jumlah Noise</th>
+                            <th class="px-4 py-3 border-b">Silhouette Score</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-gray-700">
+                        @foreach ($kDistanceResponse['results'] as $row)
+                            @php
+                                // Cek apakah baris ini adalah nilai terbaik
+                                $currentScore = $row['evaluasi_dbscan']['silhouette_score'] ?? null;
+                                $isBestK = $currentScore !== null && $currentScore == $bestKScore;
+                            @endphp
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-4 py-3 border-b font-medium text-center">
+                                    {{ $row['parameter_k'] }}
+                                </td>
+                                <td class="px-4 py-3 border-b text-center text-[#F59E0B] font-bold">
+                                    {{ isset($row['rekomendasi_epsilon_km']) ? $row['rekomendasi_epsilon_km'] : 'Error' }}
+                                </td>
+                                <td class="px-4 py-3 border-b text-center text-gray-500">
+                                    {{ $row['indeks_elbow'] ?? '-' }} / {{ $row['total_data'] ?? '-' }}
+                                </td>
+                                <td class="px-4 py-3 border-b text-center">
+                                    {{ $row['evaluasi_dbscan']['jumlah_cluster'] ?? '-' }}
+                                </td>
+                                <td class="px-4 py-3 border-b text-center text-[#D92D20]">
+                                    {{ $row['evaluasi_dbscan']['jumlah_noise'] ?? '-' }}
+                                </td>
+                                <td class="px-4 py-3 border-b text-center font-medium">
+                                    {{ $currentScore ? number_format($currentScore, 4) : '-' }}
 
-                <tr class="{{ $isBest ? 'bg-yellow-100 border-yellow-400 font-semibold' : 'hover:bg-gray-50' }}">
+                                    @if ($isBestK)
+                                        <span
+                                            class="ml-2 inline-block px-2 py-0.5 text-[10px] bg-[#F59E0B] text-white rounded-full align-middle">
+                                            Terbaik
+                                        </span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
-                    <td class="px-4 py-2 border">
-                        {{ $index + 1 }}
-                    </td>
+        </div>
 
-                    <td class="px-4 py-2 border">
-                        {{ $row['eps_km'] }}
-                    </td>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const kData = @json($kDistanceResponse['results']);
 
-                    <td class="px-4 py-2 border">
-                        {{ $row['min_samples'] }}
-                    </td>
+                // 1. Cari dataset terpanjang untuk menentukan label Sumbu X
+                let maxLen = 0;
+                kData.forEach(res => {
+                    if (res.k_distance_array && res.k_distance_array.length > maxLen) {
+                        maxLen = res.k_distance_array.length;
+                    }
+                });
 
-                    <td class="px-4 py-2 border">
-                        {{ $row['jumlah_cluster'] ?? '-' }}
-                    </td>
+                // 2. Buat array Sumbu X (1, 2, 3, ..., N)
+                const labels = Array.from({
+                    length: maxLen
+                }, (_, i) => i + 1);
 
-                    <td class="px-4 py-2 border">
-                        {{ $row['jumlah_noise'] ?? '-' }}
-                    </td>
+                // Palette warna senada dengan tema UI (Amber, Blue, Green, Red, Purple)
+                const colors = ['#F59E0B', '#3B82F6', '#10B981', '#EF4444', '#8B5CF6'];
 
-                    <td class="px-4 py-2 border">
-                        {{ $row['silhouette_coefficient'] ?? '-' }}
-                    </td>
+                // 3. Bangun Dataset untuk Chart
+                const datasets = kData.filter(res => res.k_distance_array).map((res, index) => {
+                    const color = colors[index % colors.length];
+                    return {
+                        label: 'K=' + res.parameter_k + ' (Eps: ' + res.rekomendasi_epsilon_km + ')',
+                        data: res.k_distance_array,
+                        borderColor: color,
+                        backgroundColor: color,
+                        borderWidth: 2,
+                        tension: 0.1, // Memberi efek lengkungan halus pada garis
+                        // Logika ini untuk memberikan dot besar hanya pada titik elbow, sisanya disembunyikan
+                        pointRadius: res.k_distance_array.map((_, i) => i === res.indeks_elbow ? 6 : 0),
+                        pointBackgroundColor: res.k_distance_array.map((_, i) => i === res.indeks_elbow ?
+                            '#111827' : 'transparent'),
+                        pointBorderColor: res.k_distance_array.map((_, i) => i === res.indeks_elbow ?
+                            '#111827' : 'transparent'),
+                        pointHoverRadius: 8
+                    }
+                });
 
-                </tr>
+                // 4. Render Chart
+                const ctx = document.getElementById('kDistanceChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    boxWidth: 8
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#111827',
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ' ➔ Jarak: ' + context.parsed.y +
+                                            ' km';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Urutan Titik Data UMKM',
+                                    color: '#6B7280'
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Jarak ke-K (Kilometer)',
+                                    color: '#6B7280'
+                                },
+                                grid: {
+                                    color: '#E5E7EB',
+                                    borderDash: [5, 5]
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
+    @endif
 
-                @endforeach
 
-            </tbody>
+    @if ($response)
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
 
-        </table>
-    </div>
+            <h2 class="text-lg font-semibold text-[#111827] mb-4">
+                Hasil Uji Coba Parameter DBSCAN (Grid Search)
+            </h2>
 
-</div>
-@endif
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
 
-<script>
-    function umkmModal() {
-        return {
+                    <thead class="bg-gray-100">
+                        <tr class="text-left text-sm text-[#111827] font-semibold">
+                            <th class="px-4 py-3 border-b">No</th>
+                            <th class="px-4 py-3 border-b">EPS (km)</th>
+                            <th class="px-4 py-3 border-b">MinPts</th>
+                            <th class="px-4 py-3 border-b">Jumlah Cluster</th>
+                            <th class="px-4 py-3 border-b">Noise</th>
+                            <th class="px-4 py-3 border-b">Silhouette Score</th>
+                        </tr>
+                    </thead>
 
-            showModal: false,
-            title: '',
-            actionUrl: '',
-            mode: '',
+                    <tbody class="text-sm text-gray-700">
 
-            openModal(type) {
+                        @foreach ($response['results'] as $index => $row)
+                            @php
+                                $isBest =
+                                    $best &&
+                                    $row['eps_km'] == $best['eps_km'] &&
+                                    $row['min_samples'] == $best['min_samples'];
+                            @endphp
 
-                this.showModal = true
-                this.mode = type
+                            <tr
+                                class="{{ $isBest ? 'bg-yellow-50 border-l-4 border-l-[#F59E0B] font-semibold' : 'hover:bg-gray-50' }} transition">
 
-                if(type === 'grid') {
-                    this.title = 'Optimasi Parameter DBSCAN'
-                    this.actionUrl = "{{ route('admin.umkm.grid-search') }}"
+                                <td class="px-4 py-3 border-b">
+                                    {{ $index + 1 }}
+                                </td>
+
+                                <td class="px-4 py-3 border-b {{ $isBest ? 'text-[#F59E0B]' : '' }}">
+                                    {{ $row['eps_km'] }}
+                                </td>
+
+                                <td class="px-4 py-3 border-b">
+                                    {{ $row['min_samples'] }}
+                                </td>
+
+                                <td class="px-4 py-3 border-b">
+                                    {{ $row['jumlah_cluster'] ?? '-' }}
+                                </td>
+
+                                <td class="px-4 py-3 border-b {{ $isBest ? 'text-[#D92D20]' : '' }}">
+                                    {{ $row['jumlah_noise'] ?? '-' }}
+                                </td>
+
+                                <td class="px-4 py-3 border-b">
+                                    {{ $row['silhouette_coefficient'] ?? '-' }}
+                                </td>
+
+                            </tr>
+                        @endforeach
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    @endif
+
+    <script>
+        function umkmModal() {
+            return {
+
+                showModal: false,
+                title: '',
+                actionUrl: '',
+                mode: '',
+
+                openModal(type) {
+
+                    this.showModal = true
+                    this.mode = type
+
+                    if (type === 'grid') {
+                        this.title = 'Optimasi Parameter DBSCAN (Grid Search)'
+                        this.actionUrl = "{{ route('admin.umkm.grid-search') }}"
+                    }
+
+                    if (type === 'cluster') {
+                        this.title = 'Clusterisasi UMKM'
+                        this.actionUrl = "{{ route('admin.umkm.clustering') }}"
+                    }
+
+                    // Tambahan Route untuk K-Distance
+                    if (type === 'k_distance') {
+                        this.title = 'Uji Coba Parameter (K-Distance Graph)'
+                        this.actionUrl = "{{ route('admin.umkm.k-distance') }}"
+                    }
+
+                },
+
+                closeModal() {
+                    this.showModal = false
                 }
-
-                if(type === 'cluster') {
-                    this.title = 'Clusterisasi UMKM'
-                    this.actionUrl = "{{ route('admin.umkm.clustering') }}"
-                }
-
-            },
-
-            closeModal() {
-                this.showModal = false
             }
         }
-    }
-</script>
+    </script>
 
 @endsection

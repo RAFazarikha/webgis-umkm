@@ -22,11 +22,11 @@ class UmkmController extends Controller
         if ($clusterExists) {
 
             $umkms = Umkm::with([
-                    'subdistrict',
-                    'clusterResultAll' => function ($query) use ($filterKey) {
-                        $query->where('filter', $filterKey);
-                    }
-                ])
+                'subdistrict',
+                'clusterResultAll' => function ($query) use ($filterKey) {
+                    $query->where('filter', $filterKey);
+                }
+            ])
                 ->orderBy('created_at', 'desc')
                 ->orderBy('id', 'desc')
                 ->paginate(10);
@@ -40,17 +40,54 @@ class UmkmController extends Controller
     public function dashboard()
     {
         $totalUmkm = Umkm::count();
-        $totalCluster = ClusterResult::whereNotNull('cluster')->where('filter', 'kec_all_kat_all')->distinct('cluster')->count('cluster');
-        $totalNoise = ClusterResult::where('is_noise', true)->where('filter', 'kec_all_kat_all')->count();
-        $avgRating = round(Umkm::avg('rating'), 1);
+
+        // 1. Hitung UMKM Daratan Utama
+        $umkmDaratan = Umkm::whereHas('subdistrict', function ($query) {
+            $query->where('kategori_wilayah', 'daratan_utama');
+        })->count();
+
+        // 2. Hitung UMKM Kepulauan
+        $umkmKepulauan = Umkm::whereHas('subdistrict', function ($query) {
+            $query->where('kategori_wilayah', 'kepulauan');
+        })->count();
+
+        // 3. Data Daratan Utama (Cluster & Noise)
+        $filterDaratan = 'wil_daratan_utama_kec_all_kat_all';
+        $clusterDaratan = ClusterResult::whereNotNull('cluster')
+            ->where('filter', $filterDaratan)
+            ->distinct('cluster')
+            ->count('cluster');
+        $noiseDaratan = ClusterResult::where('is_noise', true)
+            ->where('filter', $filterDaratan)
+            ->count();
+
+        // 4. Data Kepulauan (Cluster & Noise)
+        $filterKepulauan = 'wil_kepulauan_kec_all_kat_all';
+        $clusterKepulauan = ClusterResult::whereNotNull('cluster')
+            ->where('filter', $filterKepulauan)
+            ->distinct('cluster')
+            ->count('cluster');
+        $noiseKepulauan = ClusterResult::where('is_noise', true)
+            ->where('filter', $filterKepulauan)
+            ->count();
+
+        // 5. Total Keseluruhan
+        $totalCluster = $clusterDaratan + $clusterKepulauan;
+        $totalNoise = $noiseDaratan + $noiseKepulauan;
 
         $kecamatans = Subdistrict::withCount('umkms')->get();
 
+        // Jangan lupa tambahkan umkmDaratan dan umkmKepulauan di compact
         return view('admin.dashboard', compact(
             'totalUmkm',
+            'umkmDaratan',
+            'umkmKepulauan',
+            'clusterDaratan',
+            'noiseDaratan',
+            'clusterKepulauan',
+            'noiseKepulauan',
             'totalCluster',
             'totalNoise',
-            'avgRating',
             'kecamatans'
         ));
     }
@@ -324,7 +361,16 @@ class UmkmController extends Controller
 
         try {
 
-            $umkms = Umkm::with('subdistrict')->get();
+            $query = Umkm::with('subdistrict');
+
+            // Tambahkan filter wilayah ini
+            if ($request->filled('kategori_wilayah')) {
+                $query->whereHas('subdistrict', function ($q) use ($request) {
+                    $q->where('kategori_wilayah', $request->kategori_wilayah);
+                });
+            }
+
+            $umkms = $query->get(); // Ganti dari Umkm::with('subdistrict')->get();
 
             if ($umkms->isEmpty()) {
                 return back()->with('error', 'Data UMKM kosong.');
@@ -341,10 +387,11 @@ class UmkmController extends Controller
             })->values();
 
             /** menentukan filter */
+            $wilayah = $request->input('kategori_wilayah') ?: 'all';
             $kecamatan = $request->input('kecamatan') ?: 'all';
             $kategori = $request->input('kategori') ?: 'all';
 
-            $filterKey = "kec_{$kecamatan}_kat_{$kategori}";
+            $filterKey = "wil_{$wilayah}_kec_{$kecamatan}_kat_{$kategori}";
 
             /** request ke Flask API */
             /** @var \Illuminate\Http\Client\Response $response */
@@ -402,10 +449,9 @@ class UmkmController extends Controller
                 ->with(
                     'success',
                     'Clustering berhasil dijalankan. ' .
-                    'Cluster: ' . ($data['jumlah_cluster'] ?? 0) .
-                    ' | Noise: ' . ($data['jumlah_noise'] ?? 0)
+                        'Cluster: ' . ($data['jumlah_cluster'] ?? 0) .
+                        ' | Noise: ' . ($data['jumlah_noise'] ?? 0)
                 );
-
         } catch (\Exception $e) {
 
             DB::rollBack();
@@ -419,7 +465,16 @@ class UmkmController extends Controller
 
     public function gridSearch(Request $request)
     {
-        $umkms = Umkm::with('subdistrict')->get();
+        $query = Umkm::with('subdistrict');
+
+        // Tambahkan filter wilayah ini
+        if ($request->filled('kategori_wilayah')) {
+            $query->whereHas('subdistrict', function ($q) use ($request) {
+                $q->where('kategori_wilayah', $request->kategori_wilayah);
+            });
+        }
+
+        $umkms = $query->get(); // Ganti dari Umkm::with('subdistrict')->get();
 
         if ($umkms->isEmpty()) {
             return back()->with('error', 'Data UMKM kosong.');
@@ -464,5 +519,63 @@ class UmkmController extends Controller
         return redirect()
             ->route('admin.dashboard')
             ->with('response', $result['data']);
+    }
+
+    public function kDistance(Request $request)
+    {
+        $query = Umkm::with('subdistrict');
+
+        // Filter Kategori Wilayah di level Laravel (Database)
+        if ($request->filled('kategori_wilayah')) {
+            $query->whereHas('subdistrict', function ($q) use ($request) {
+                $q->where('kategori_wilayah', $request->kategori_wilayah);
+            });
+        }
+
+        $umkms = $query->get();
+
+        if ($umkms->isEmpty()) {
+            return back()->with('error', 'Data UMKM kosong untuk filter tersebut.');
+        }
+
+        // Mapping payload dengan standar yang sama seperti fungsi lain
+        $payloadData = $umkms->map(function ($item) {
+            return [
+                "id" => $item->id,
+                "name" => $item->nama_usaha,
+                "latitude" => (float) $item->latitude,
+                "longitude" => (float) $item->longitude,
+                "kecamatan" => optional($item->subdistrict)->name,
+                "kategori_kuliner" => $item->kategori
+            ];
+        })->values();
+
+        /** @var \Illuminate\Http\Client\Response $response */
+        $response = Http::timeout(180)->post(
+            config('services.flask.url') . '/cluster/k-distance/api',
+            [
+                "data" => $payloadData,
+                "k_start" => (int) ($request->k_start ?? 3),
+                "k_end" => (int) ($request->k_end ?? 6),
+                // Hanya mengirim kecamatan dan kategori untuk informasi filter di Flask
+                "kecamatan" => $request->kecamatan,
+                "kategori_kuliner" => $request->kategori
+            ]
+        );
+
+        if (!$response->successful()) {
+            return back()->with('error', 'API K-Distance gagal diakses. Status: ' . $response->status());
+        }
+
+        $result = $response->json();
+
+        if (($result['status'] ?? null) !== 'success') {
+            return back()->with('error', $result['message'] ?? 'Analisis K-Distance gagal.');
+        }
+
+        return redirect()
+            ->route('admin.dashboard')
+            ->with('k_distance_response', $result['data'])
+            ->with('success', 'Analisis K-Distance Graph berhasil diselesaikan.');
     }
 }
