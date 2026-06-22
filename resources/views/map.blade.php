@@ -28,21 +28,21 @@
                 lokasi usaha.
 
                 @if ($wilayah === 'all')
-                    Di <b>Daratan Utama</b> terbentuk <b>{{ $jmlClusterDaratan }} cluster</b> (Eps: {{ $epsDaratan }},
-                    MinPts: {{ $minptsDaratan }}),
-                    sedangkan di <b>Kepulauan</b> terbentuk <b>{{ $jmlClusterKepulauan }} cluster</b> (Eps:
-                    {{ $epsKepulauan }}, MinPts: {{ $minptsKepulauan }}).
+                    Untuk <b>Seluruh Wilayah</b>, algoritma berhasil membentuk <b>{{ $jmlClusterAll }} cluster</b>
+                    dengan parameter Epsilon: {{ $epsAll }}, MinPts: {{ $minptsAll }}, dan Davies-Bouldin Index
+                    (DBI): <b>{{ is_numeric($dbiAll) ? number_format($dbiAll, 4) : $dbiAll }}</b>.
                 @elseif($wilayah === 'daratan_utama')
                     Di wilayah <b>Daratan Utama</b>, algoritma berhasil membentuk <b>{{ $jmlClusterDaratan }} cluster</b>
-                    dengan parameter Epsilon: {{ $epsDaratan }} dan MinPts: {{ $minptsDaratan }}.
+                    dengan parameter Epsilon: {{ $epsDaratan }}, MinPts: {{ $minptsDaratan }}, dan Davies-Bouldin Index
+                    (DBI): <b>{{ is_numeric($dbiDaratan) ? number_format($dbiDaratan, 4) : $dbiDaratan }}</b>.
                 @elseif($wilayah === 'kepulauan')
                     Di wilayah <b>Kepulauan</b>, algoritma berhasil membentuk <b>{{ $jmlClusterKepulauan }} cluster</b>
-                    dengan parameter Epsilon: {{ $epsKepulauan }} dan MinPts: {{ $minptsKepulauan }}.
+                    dengan parameter Epsilon: {{ $epsKepulauan }}, MinPts: {{ $minptsKepulauan }}, dan Davies-Bouldin
+                    Index (DBI): <b>{{ is_numeric($dbiKepulauan) ? number_format($dbiKepulauan, 4) : $dbiKepulauan }}</b>.
                 @endif
             </p>
         </div>
 
-        <!-- Filters -->
         <div x-data="filterHandler()" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-10">
             <h2 class="text-2xl font-semibold text-[#111827] mb-6">Filters</h2>
 
@@ -104,10 +104,8 @@
 
         </div>
 
-        <!-- Map -->
         <div id="map" class="w-full h-[700px] rounded-2xl shadow-md border border-gray-200 z-10"></div>
 
-        <!-- Filters Cluster -->
         <div x-data="filterHandler()" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mt-10">
             <h2 class="text-2xl font-semibold text-[#111827] mb-6">Filter Cluster</h2>
 
@@ -150,21 +148,17 @@
             </div>
         </div>
 
-        <!-- Sidebar Wrapper -->
         <div x-data="sidebarHandler()" x-cloak class="z-[999]">
 
-            <!-- Backdrop -->
             <div x-show="open" x-transition.opacity @click="close()" class="fixed inset-0 bg-[#111827]/60 z-[998]">
             </div>
 
-            <!-- Sidebar Panel -->
             <div x-show="open" @click.outside="close()" x-transition:enter="transform transition ease-in-out duration-300"
                 x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
                 x-transition:leave="transform transition ease-in-out duration-300" x-transition:leave-start="translate-x-0"
                 x-transition:leave-end="translate-x-full"
                 class="fixed top-0 right-0 w-full md:w-[420px] h-full bg-white shadow-2xl z-[999] overflow-y-auto">
 
-                <!-- Header -->
                 <div class="flex justify-between items-center p-6 border-b border-gray-200">
                     <h2 class="text-xl font-bold text-[#111827] capitalize" x-text="data.name"></h2>
                     <button @click="close()" class="text-gray-400 hover:text-[#D92D20] text-2xl">
@@ -172,7 +166,6 @@
                     </button>
                 </div>
 
-                <!-- Content -->
                 <div class="p-6 space-y-6">
 
                     <div class="w-full h-52 bg-gray-200 rounded-xl overflow-hidden">
@@ -251,7 +244,6 @@
         }
     </style>
 
-    <!-- Leaflet CDN -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 

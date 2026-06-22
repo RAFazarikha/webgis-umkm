@@ -63,7 +63,7 @@
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <p class="text-sm text-gray-500 mb-1">Total Keseluruhan Cluster</p>
+                    <p class="text-sm text-gray-500 mb-1">Cluster: Semua Wilayah (Gabungan)</p>
                     <h2 class="text-3xl font-bold text-[#F59E0B]">
                         {{ $totalCluster }}
                     </h2>
@@ -78,11 +78,11 @@
             </div>
             <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
                 <div>
-                    <p class="text-xs text-gray-400">Daratan Utama</p>
+                    <p class="text-xs text-gray-400">Daratan (Terpisah)</p>
                     <p class="text-lg font-semibold text-gray-800">{{ $clusterDaratan }}</p>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-400">Kepulauan</p>
+                    <p class="text-xs text-gray-400">Kepulauan (Terpisah)</p>
                     <p class="text-lg font-semibold text-gray-800">{{ $clusterKepulauan }}</p>
                 </div>
             </div>
@@ -91,7 +91,7 @@
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <p class="text-sm text-gray-500 mb-1">Total Keseluruhan Noise</p>
+                    <p class="text-sm text-gray-500 mb-1">Noise: Semua Wilayah (Gabungan)</p>
                     <h2 class="text-3xl font-bold text-[#D92D20]">
                         {{ $totalNoise }}
                     </h2>
@@ -105,55 +105,36 @@
             </div>
             <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
                 <div>
-                    <p class="text-xs text-gray-400">Daratan Utama</p>
+                    <p class="text-xs text-gray-400">Daratan (Terpisah)</p>
                     <p class="text-lg font-semibold text-gray-800">{{ $noiseDaratan }}</p>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-400">Kepulauan</p>
+                    <p class="text-xs text-gray-400">Kepulauan (Terpisah)</p>
                     <p class="text-lg font-semibold text-gray-800">{{ $noiseKepulauan }}</p>
                 </div>
             </div>
         </div>
 
     </div>
-
     <div x-data="umkmModal()" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-12">
-
-        <h2 class="text-xl font-semibold text-[#111827] mb-6">
-            Manajemen Data UMKM
-        </h2>
-
+        <h2 class="text-xl font-semibold text-[#111827] mb-6">Manajemen Data UMKM</h2>
         <div class="flex flex-wrap gap-4">
-
             <button @click="openModal('k_distance')"
-                class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-gray-800 transition shadow-sm">
-                Uji Coba K-Distance
-            </button>
-
+                class="px-6 py-3 bg-[#111827] text-white rounded-lg hover:bg-gray-800 transition shadow-sm">Uji Coba
+                K-Distance</button>
             <button @click="openModal('grid')"
-                class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-yellow-600 transition shadow-sm">
-                Optimasi Parameter
-            </button>
-
+                class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-yellow-600 transition shadow-sm">Optimasi
+                Parameter</button>
             <button @click="openModal('cluster')"
-                class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-yellow-600 transition shadow-sm">
-                Clusterisasi UMKM
-            </button>
-
+                class="px-6 py-3 bg-[#F59E0B] text-white rounded-lg hover:bg-yellow-600 transition shadow-sm">Clusterisasi
+                UMKM</button>
             <a href="{{ route('admin.umkm.index') }}"
-                class="px-6 py-3 bg-white text-[#111827] rounded-lg hover:bg-gray-50 border border-gray-300 transition shadow-sm">
-                Lihat Data UMKM
-            </a>
-
+                class="px-6 py-3 bg-white text-[#111827] rounded-lg hover:bg-gray-50 border border-gray-300 transition shadow-sm">Lihat
+                Data UMKM</a>
             <a href="{{ route('admin.umkm.create') }}"
-                class="px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition shadow-sm">
-                Tambah UMKM
-            </a>
-
+                class="px-6 py-3 bg-[#D92D20] text-white rounded-lg hover:bg-red-700 transition shadow-sm">Tambah UMKM</a>
         </div>
-
         @include('components.form-umkm-modal')
-
     </div>
 
     @if ($kDistanceResponse)
@@ -163,12 +144,14 @@
                 <h2 class="text-lg font-semibold text-[#111827]">
                     Hasil Analisis K-Distance Graph & Evaluasi DBSCAN
                 </h2>
-                <span class="px-3 py-1 bg-yellow-100 text-yellow-700 text-sm font-medium rounded-full">
-                    Jumlah Data: {{ $kDistanceResponse['total_data_diproses'] }}
-                </span>
-                <span class="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
-                    K Rentang: {{ $kDistanceResponse['k_range'][0] }} - {{ $kDistanceResponse['k_range'][1] }}
-                </span>
+                <div class="space-x-2">
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-700 text-sm font-medium rounded-full">
+                        Total Data: {{ $kDistanceResponse['total_data_diproses'] }}
+                    </span>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+                        K Range: {{ $kDistanceResponse['k_range'][0] }} - {{ $kDistanceResponse['k_range'][1] }}
+                    </span>
+                </div>
             </div>
 
             <div class="relative h-[400px] w-full mb-8 border border-gray-100 rounded-xl p-4 bg-gray-50/50">
@@ -177,57 +160,114 @@
 
             <div class="overflow-x-auto">
                 @php
-                    // Cari nilai silhouette score tertinggi dari seluruh hasil uji coba K
-                    $bestKScore = collect($kDistanceResponse['results'])
-                        ->pluck('evaluasi_dbscan.silhouette_score')
-                        ->filter() // Buang nilai null jika ada error di salah satu K
-                        ->max();
+                    // Cari nilai DBI terendah (terbaik) dari seluruh hasil uji coba K
+                    $bestDBIScore = collect($kDistanceResponse['results'])
+                        ->pluck('evaluasi_dbscan_optimal.davies_bouldin_index')
+                        ->filter(function ($val) {
+                            return !is_null($val);
+                        })
+                        ->min(); // Gunakan min() karena nilai DBI kecil = lebih baik
                 @endphp
+
                 <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
                     <thead class="bg-gray-100">
-                        <tr class="text-left text-sm text-[#111827] font-semibold">
-                            <th class="px-4 py-3 border-b">K (MinPts)</th>
-                            <th class="px-4 py-3 border-b">Rekomendasi EPS (km)</th>
-                            <th class="px-4 py-3 border-b">Titik Belok (Index)</th>
-                            <th class="px-4 py-3 border-b">Cluster Terbentuk</th>
-                            <th class="px-4 py-3 border-b">Jumlah Noise</th>
-                            <th class="px-4 py-3 border-b">Silhouette Score</th>
+                        <tr class="text-center text-sm text-[#111827] font-semibold border-b">
+                            <th class="px-4 py-3 border-r">K (MinPts)</th>
+                            <th class="px-4 py-3 border-r">EPS Elbow (km)</th>
+                            <th class="px-4 py-3 border-r">Titik Belok</th>
+                            <th class="px-4 py-3 border-r">Cluster</th>
+                            <th class="px-4 py-3 border-r">Core/Border</th>
+                            <th class="px-4 py-3 border-r text-[#D92D20]">Noise</th>
+                            <th class="px-4 py-3 text-blue-600">DBI (Optimal)</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm text-gray-700">
                         @foreach ($kDistanceResponse['results'] as $row)
                             @php
-                                // Cek apakah baris ini adalah nilai terbaik
-                                $currentScore = $row['evaluasi_dbscan']['silhouette_score'] ?? null;
-                                $isBestK = $currentScore !== null && $currentScore == $bestKScore;
+                                $evalOptimal = $row['evaluasi_dbscan_optimal'] ?? null;
+                                $currentDBI = $evalOptimal['davies_bouldin_index'] ?? null;
+                                $isBestK = $currentDBI !== null && $currentDBI == $bestDBIScore;
                             @endphp
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-4 py-3 border-b font-medium text-center">
+
+                            <tr class="hover:bg-gray-50 transition border-b">
+                                <td class="px-4 py-3 border-r font-medium text-center">
                                     {{ $row['parameter_k'] }}
                                 </td>
-                                <td class="px-4 py-3 border-b text-center text-[#F59E0B] font-bold">
+                                <td class="px-4 py-3 border-r text-center text-[#F59E0B] font-bold">
                                     {{ isset($row['rekomendasi_epsilon_km']) ? $row['rekomendasi_epsilon_km'] : 'Error' }}
                                 </td>
-                                <td class="px-4 py-3 border-b text-center text-gray-500">
-                                    {{ $row['indeks_elbow'] ?? '-' }} / {{ $row['total_data'] ?? '-' }}
+                                <td class="px-4 py-3 border-r text-center text-gray-500">
+                                    {{ $row['indeks_elbow'] ?? '-' }}
                                 </td>
-                                <td class="px-4 py-3 border-b text-center">
-                                    {{ $row['evaluasi_dbscan']['jumlah_cluster'] ?? '-' }}
+                                <td class="px-4 py-3 border-r text-center font-bold">
+                                    {{ $evalOptimal['jumlah_cluster'] ?? '-' }}
                                 </td>
-                                <td class="px-4 py-3 border-b text-center text-[#D92D20]">
-                                    {{ $row['evaluasi_dbscan']['jumlah_noise'] ?? '-' }}
+                                <td class="px-4 py-3 border-r text-center text-gray-500 text-xs">
+                                    {{ $evalOptimal['jumlah_core'] ?? '0' }} / {{ $evalOptimal['jumlah_border'] ?? '0' }}
                                 </td>
-                                <td class="px-4 py-3 border-b text-center font-medium">
-                                    {{ $currentScore ? number_format($currentScore, 4) : '-' }}
+                                <td class="px-4 py-3 border-r text-center text-[#D92D20]">
+                                    {{ $evalOptimal['jumlah_noise'] ?? '-' }}
+                                </td>
+                                <td class="px-4 py-3 text-center font-medium bg-blue-50/30">
+                                    {{ $currentDBI ? number_format($currentDBI, 4) : '-' }}
 
                                     @if ($isBestK)
                                         <span
-                                            class="ml-2 inline-block px-2 py-0.5 text-[10px] bg-[#F59E0B] text-white rounded-full align-middle">
-                                            Terbaik
+                                            class="block mt-1 px-2 py-0.5 text-[10px] bg-blue-500 text-white rounded-full mx-auto w-max">
+                                            DBI Terbaik
                                         </span>
                                     @endif
                                 </td>
                             </tr>
+
+                            @if (isset($row['evaluasi_kandidat_eps']) && count($row['evaluasi_kandidat_eps']) > 0)
+                                <tr>
+                                    <td colspan="7" class="p-0 border-b border-gray-300">
+                                        <div
+                                            class="bg-gray-50/80 p-4 border-l-4 border-indigo-400 ml-4 mb-2 mt-2 rounded-r-lg">
+                                            <p class="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                                                📊 Simulasi Kenaikan EPS untuk MinPts = {{ $row['parameter_k'] }}
+                                            </p>
+                                            <div class="overflow-x-auto">
+                                                <table
+                                                    class="w-full text-xs text-left bg-white border border-gray-200 rounded">
+                                                    <thead class="bg-indigo-50 text-indigo-800">
+                                                        <tr>
+                                                            <th class="py-2 px-3 border-b">Kenaikan EPS</th>
+                                                            <th class="py-2 px-3 border-b">Nilai EPS (km)</th>
+                                                            <th class="py-2 px-3 border-b">Cluster</th>
+                                                            <th class="py-2 px-3 border-b">Noise</th>
+                                                            <th class="py-2 px-3 border-b">% Noise</th>
+                                                            <th class="py-2 px-3 border-b">DBI</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($row['evaluasi_kandidat_eps'] as $eps)
+                                                            <tr class="hover:bg-gray-50 border-b last:border-0">
+                                                                <td
+                                                                    class="py-1 px-3 font-medium {{ $eps['kenaikan_eps'] == '+0%' ? 'text-indigo-600' : '' }}">
+                                                                    {{ $eps['kenaikan_eps'] }}
+                                                                    {{ $eps['kenaikan_eps'] == '+0%' ? '(Asli)' : '' }}
+                                                                </td>
+                                                                <td class="py-1 px-3">{{ $eps['eps_km'] }}</td>
+                                                                <td class="py-1 px-3 font-semibold">
+                                                                    {{ $eps['jumlah_cluster'] }}</td>
+                                                                <td class="py-1 px-3 text-red-500">
+                                                                    {{ $eps['jumlah_noise'] }}</td>
+                                                                <td class="py-1 px-3">{{ $eps['persentase_noise'] }}%</td>
+                                                                <td
+                                                                    class="py-1 px-3 font-semibold {{ $eps['davies_bouldin_index'] == $currentDBI ? 'text-green-600' : '' }}">
+                                                                    {{ $eps['davies_bouldin_index'] ? number_format($eps['davies_bouldin_index'], 4) : '-' }}
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endif
                         @endforeach
                     </tbody>
                 </table>
@@ -239,24 +279,17 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const kData = @json($kDistanceResponse['results']);
-
-                // 1. Cari dataset terpanjang untuk menentukan label Sumbu X
                 let maxLen = 0;
                 kData.forEach(res => {
                     if (res.k_distance_array && res.k_distance_array.length > maxLen) {
                         maxLen = res.k_distance_array.length;
                     }
                 });
-
-                // 2. Buat array Sumbu X (1, 2, 3, ..., N)
                 const labels = Array.from({
                     length: maxLen
                 }, (_, i) => i + 1);
-
-                // Palette warna senada dengan tema UI (Amber, Blue, Green, Red, Purple)
                 const colors = ['#F59E0B', '#3B82F6', '#10B981', '#EF4444', '#8B5CF6'];
 
-                // 3. Bangun Dataset untuk Chart
                 const datasets = kData.filter(res => res.k_distance_array).map((res, index) => {
                     const color = colors[index % colors.length];
                     return {
@@ -265,8 +298,7 @@
                         borderColor: color,
                         backgroundColor: color,
                         borderWidth: 2,
-                        tension: 0.1, // Memberi efek lengkungan halus pada garis
-                        // Logika ini untuk memberikan dot besar hanya pada titik elbow, sisanya disembunyikan
+                        tension: 0.1,
                         pointRadius: res.k_distance_array.map((_, i) => i === res.indeks_elbow ? 6 : 0),
                         pointBackgroundColor: res.k_distance_array.map((_, i) => i === res.indeks_elbow ?
                             '#111827' : 'transparent'),
@@ -276,7 +308,6 @@
                     }
                 });
 
-                // 4. Render Chart
                 const ctx = document.getElementById('kDistanceChart').getContext('2d');
                 new Chart(ctx, {
                     type: 'line',
@@ -289,7 +320,7 @@
                         maintainAspectRatio: false,
                         interaction: {
                             mode: 'index',
-                            intersect: false,
+                            intersect: false
                         },
                         plugins: {
                             legend: {
@@ -338,30 +369,26 @@
         </script>
     @endif
 
-
     @if ($response)
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-
             <h2 class="text-lg font-semibold text-[#111827] mb-4">
                 Hasil Uji Coba Parameter DBSCAN (Grid Search)
             </h2>
 
             <div class="overflow-x-auto">
                 <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-
                     <thead class="bg-gray-100">
-                        <tr class="text-left text-sm text-[#111827] font-semibold">
-                            <th class="px-4 py-3 border-b">No</th>
-                            <th class="px-4 py-3 border-b">EPS (km)</th>
-                            <th class="px-4 py-3 border-b">MinPts</th>
-                            <th class="px-4 py-3 border-b">Jumlah Cluster</th>
-                            <th class="px-4 py-3 border-b">Noise</th>
-                            <th class="px-4 py-3 border-b">Silhouette Score</th>
+                        <tr class="text-left text-sm text-[#111827] font-semibold border-b">
+                            <th class="px-4 py-3 border-r">No</th>
+                            <th class="px-4 py-3 border-r">EPS (km)</th>
+                            <th class="px-4 py-3 border-r">MinPts</th>
+                            <th class="px-4 py-3 border-r">Jumlah Cluster</th>
+                            <th class="px-4 py-3 border-r">Core/Border</th>
+                            <th class="px-4 py-3 border-r">Noise</th>
+                            <th class="px-4 py-3">DBI</th>
                         </tr>
                     </thead>
-
                     <tbody class="text-sm text-gray-700">
-
                         @foreach ($response['results'] as $index => $row)
                             @php
                                 $isBest =
@@ -371,75 +398,55 @@
                             @endphp
 
                             <tr
-                                class="{{ $isBest ? 'bg-yellow-50 border-l-4 border-l-[#F59E0B] font-semibold' : 'hover:bg-gray-50' }} transition">
-
-                                <td class="px-4 py-3 border-b">
-                                    {{ $index + 1 }}
+                                class="{{ $isBest ? 'bg-yellow-50 border-l-4 border-l-[#F59E0B] font-semibold' : 'hover:bg-gray-50 border-b' }} transition">
+                                <td class="px-4 py-3 border-r">{{ $index + 1 }}</td>
+                                <td class="px-4 py-3 border-r {{ $isBest ? 'text-[#F59E0B]' : '' }}">{{ $row['eps_km'] }}
                                 </td>
-
-                                <td class="px-4 py-3 border-b {{ $isBest ? 'text-[#F59E0B]' : '' }}">
-                                    {{ $row['eps_km'] }}
+                                <td class="px-4 py-3 border-r">{{ $row['min_samples'] }}</td>
+                                <td class="px-4 py-3 border-r">{{ $row['jumlah_cluster'] ?? '-' }}</td>
+                                <td class="px-4 py-3 border-r text-xs text-gray-500">
+                                    {{ $row['jumlah_core'] ?? '0' }} / {{ $row['jumlah_border'] ?? '0' }}
                                 </td>
-
-                                <td class="px-4 py-3 border-b">
-                                    {{ $row['min_samples'] }}
+                                <td class="px-4 py-3 border-r {{ $isBest ? 'text-[#D92D20]' : '' }}">
+                                    {{ $row['jumlah_noise'] ?? '-' }}</td>
+                                <td class="px-4 py-3">
+                                    {{ isset($row['davies_bouldin_index']) ? number_format($row['davies_bouldin_index'], 4) : '-' }}
+                                    @if ($isBest)
+                                        <span
+                                            class="ml-2 inline-block px-2 py-0.5 text-[10px] bg-green-500 text-white rounded-full align-middle">Terbaik</span>
+                                    @endif
                                 </td>
-
-                                <td class="px-4 py-3 border-b">
-                                    {{ $row['jumlah_cluster'] ?? '-' }}
-                                </td>
-
-                                <td class="px-4 py-3 border-b {{ $isBest ? 'text-[#D92D20]' : '' }}">
-                                    {{ $row['jumlah_noise'] ?? '-' }}
-                                </td>
-
-                                <td class="px-4 py-3 border-b">
-                                    {{ $row['silhouette_coefficient'] ?? '-' }}
-                                </td>
-
                             </tr>
                         @endforeach
-
                     </tbody>
-
                 </table>
             </div>
-
         </div>
     @endif
 
     <script>
         function umkmModal() {
             return {
-
                 showModal: false,
                 title: '',
                 actionUrl: '',
                 mode: '',
-
                 openModal(type) {
-
                     this.showModal = true
                     this.mode = type
-
                     if (type === 'grid') {
                         this.title = 'Optimasi Parameter DBSCAN (Grid Search)'
                         this.actionUrl = "{{ route('admin.umkm.grid-search') }}"
                     }
-
                     if (type === 'cluster') {
                         this.title = 'Clusterisasi UMKM'
                         this.actionUrl = "{{ route('admin.umkm.clustering') }}"
                     }
-
-                    // Tambahan Route untuk K-Distance
                     if (type === 'k_distance') {
                         this.title = 'Uji Coba Parameter (K-Distance Graph)'
                         this.actionUrl = "{{ route('admin.umkm.k-distance') }}"
                     }
-
                 },
-
                 closeModal() {
                     this.showModal = false
                 }

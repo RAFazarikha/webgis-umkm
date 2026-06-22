@@ -20,42 +20,29 @@ class MainController extends Controller
 
     public function map(Request $request)
     {
-        // Menggunakan parameter default dari Laravel
+        // Menggunakan parameter default 'all'
         $wilayah = $request->input('wilayah', 'all');
         $kecamatan = $request->input('kecamatan', 'all');
         $kategori = $request->input('kategori', 'all');
         $cluster = $request->input('cluster', 'all');
         $search = $request->input('search');
 
-        // 1. Logika Kunci Filter (Array)
-        // Jika 'all', kita cari data untuk daratan_utama DAN kepulauan sekaligus
-        if ($wilayah === 'all') {
-            $filterKeys = [
-                "wil_daratan_utama_kec_{$kecamatan}_kat_{$kategori}",
-                "wil_kepulauan_kec_{$kecamatan}_kat_{$kategori}"
-            ];
-            $defaultFilters = [
-                "wil_daratan_utama_kec_all_kat_all",
-                "wil_kepulauan_kec_all_kat_all"
-            ];
-        } else {
-            $filterKeys = ["wil_{$wilayah}_kec_{$kecamatan}_kat_{$kategori}"];
-            $defaultFilters = ["wil_{$wilayah}_kec_all_kat_all"];
-        }
+        // 1. Logika Kunci Filter (Single String)
+        $filterKey = "wil_{$wilayah}_kec_{$kecamatan}_kat_{$kategori}";
+        $defaultFilter = 'wil_all_kec_all_kat_all';
 
-        // Cek apakah ada hasil cluster (menggunakan whereIn karena bisa berupa array)
-        $clusterExists = ClusterResult::whereIn('filter', $filterKeys)->exists();
+        // Cek apakah ada hasil cluster untuk filter yang dipilih
+        $clusterExists = ClusterResult::where('filter', $filterKey)->exists();
 
-        // Tentukan filter key mana yang akan diload
-        $activeFilters = $clusterExists ? $filterKeys : $defaultFilters;
+        // Tentukan filter key mana yang aktif diload
+        $activeFilter = $clusterExists ? $filterKey : $defaultFilter;
 
-        // Query Utama
+        // 2. Query Utama
         $umkms = Umkm::with([
             'subdistrict',
-            'clusterResultAll' => function ($q) use ($activeFilters) {
-                // Gunakan whereIn agar bisa membaca lebih dari satu filter sekaligus
-                $q->whereIn('filter', $activeFilters);
-            }
+            'clusterResultAll' => function ($q) use ($activeFilter) {
+                $q->where('filter', $activeFilter);
+            },
         ])
             // Filter Kategori Wilayah (Daratan Utama / Kepulauan)
             ->when($wilayah !== 'all', function ($q) use ($wilayah) {
@@ -74,33 +61,31 @@ class MainController extends Controller
                 $q->where('kategori', $kategori);
             })
             // Filter Cluster / Noise
-            ->when($cluster !== 'all', function ($q) use ($cluster, $defaultFilters) {
-                $q->whereHas('clusterResultAll', function ($q2) use ($cluster, $defaultFilters) {
-                    // Gunakan defaultFilters agar dropdown filter cluster berfungsi dengan baik
-                    $q2->whereIn('filter', $defaultFilters);
+            ->when($cluster !== 'all', function ($q) use ($cluster, $activeFilter) {
+                $q->whereHas('clusterResultAll', function ($q2) use ($cluster, $activeFilter) {
+                    $q2->where('filter', $activeFilter);
 
                     if ($cluster === 'noise') {
                         $q2->where('is_noise', true);
                     } else {
-                        // Cast ke (int) untuk memastikan tipe data cocok dengan database
                         $q2->where('cluster', (int) $cluster);
                     }
                 });
             })
             // Menampilkan hanya yang punya hasil cluster pada filter aktif
-            ->when($clusterExists, function ($q) use ($filterKeys) {
-                $q->whereHas('clusterResultAll', function ($q2) use ($filterKeys) {
-                    $q2->whereIn('filter', $filterKeys);
+            ->when($clusterExists, function ($q) use ($activeFilter) {
+                $q->whereHas('clusterResultAll', function ($q2) use ($activeFilter) {
+                    $q2->where('filter', $activeFilter);
                 });
             })
-            // Tambahan opsional: filter search jika di peta ada kolom pencarian nama usaha
+            // Filter pencarian nama usaha
             ->when($search, function ($q) use ($search) {
                 $q->where('nama_usaha', 'like', "%{$search}%");
             })
             ->get();
 
         // Mengambil daftar list cluster untuk menu Dropdown
-        $clusters = ClusterResult::whereIn('filter', $defaultFilters)
+        $clusters = ClusterResult::where('filter', $defaultFilter)
             ->whereNotNull('cluster')
             ->distinct()
             ->orderBy('cluster', 'asc')
@@ -109,22 +94,30 @@ class MainController extends Controller
         $kecamatans = Subdistrict::all();
 
         // ----------------------------------------------------
-        // MENGAMBIL PARAMETER & JUMLAH CLUSTER UNTUK DESKRIPSI PETA
+        // MENGAMBIL PARAMETER, DBI, & JUMLAH CLUSTER UNTUK PETA
         // ----------------------------------------------------
 
-        // 1. Daratan Utama
+        // 1. Keseluruhan (All)
+        $filterAll = "wil_all_kec_{$kecamatan}_kat_{$kategori}";
+        $epsAll = ClusterResult::where('filter', $filterAll)->value('eps') ?? '-';
+        $minptsAll = ClusterResult::where('filter', $filterAll)->value('min_samples') ?? '-';
+        $dbiAll = ClusterResult::where('filter', $filterAll)->value('davies_bouldin_index') ?? '-';
+        $jmlClusterAll = ClusterResult::where('filter', $filterAll)->whereNotNull('cluster')->distinct('cluster')->count('cluster');
+
+        // 2. Daratan Utama
         $filterDaratan = "wil_daratan_utama_kec_{$kecamatan}_kat_{$kategori}";
         $epsDaratan = ClusterResult::where('filter', $filterDaratan)->value('eps') ?? '-';
         $minptsDaratan = ClusterResult::where('filter', $filterDaratan)->value('min_samples') ?? '-';
+        $dbiDaratan = ClusterResult::where('filter', $filterDaratan)->value('davies_bouldin_index') ?? '-';
         $jmlClusterDaratan = ClusterResult::where('filter', $filterDaratan)->whereNotNull('cluster')->distinct('cluster')->count('cluster');
 
-        // 2. Kepulauan
+        // 3. Kepulauan
         $filterKepulauan = "wil_kepulauan_kec_{$kecamatan}_kat_{$kategori}";
         $epsKepulauan = ClusterResult::where('filter', $filterKepulauan)->value('eps') ?? '-';
         $minptsKepulauan = ClusterResult::where('filter', $filterKepulauan)->value('min_samples') ?? '-';
+        $dbiKepulauan = ClusterResult::where('filter', $filterKepulauan)->value('davies_bouldin_index') ?? '-';
         $jmlClusterKepulauan = ClusterResult::where('filter', $filterKepulauan)->whereNotNull('cluster')->distinct('cluster')->count('cluster');
 
-        // Jangan lupa tambahkan variabel baru ini ke dalam compact()
         return view('map', compact(
             'umkms',
             'kecamatans',
@@ -133,11 +126,17 @@ class MainController extends Controller
             'kategori',
             'clusterExists',
             'clusters',
+            'epsAll',
+            'minptsAll',
+            'dbiAll',
+            'jmlClusterAll',
             'epsDaratan',
             'minptsDaratan',
+            'dbiDaratan',
             'jmlClusterDaratan',
             'epsKepulauan',
             'minptsKepulauan',
+            'dbiKepulauan',
             'jmlClusterKepulauan'
         ));
     }
@@ -166,19 +165,21 @@ class MainController extends Controller
 
     public function view(Request $request, $slug)
     {
+        $wilayah = $request->input('wilayah') ?: 'all';
         $kecamatan = $request->input('kecamatan') ?: 'all';
         $kategori = $request->input('kategori') ?: 'all';
 
-        $filterKey = "kec_{$kecamatan}_kat_{$kategori}";
+        $filterKey = "wil_{$wilayah}_kec_{$kecamatan}_kat_{$kategori}";
 
         $umkm = Umkm::with([
             'subdistrict',
             'clusterResultAll' => function ($q) use ($filterKey) {
                 $q->where('filter', $filterKey);
-            }
+            },
         ])
             ->where('slug', $slug)
             ->firstOrFail();
+
         return view('kuliner.view', compact('umkm'));
     }
 
@@ -220,7 +221,7 @@ class MainController extends Controller
             ->latest()
             ->get();
 
-        $clusters = ClusterResult::where('filter', 'kec_all_kat_all')
+        $clusters = ClusterResult::where('filter', 'wil_all_kec_all_kat_all')
             ->whereNotNull('cluster')
             ->distinct()
             ->orderBy('cluster', 'asc')

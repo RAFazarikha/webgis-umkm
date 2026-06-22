@@ -25,7 +25,7 @@ return new class extends Migration
 
             $table->float('eps', 10, 2)->nullable();
             $table->integer('min_samples')->nullable();
-            $table->decimal('silhouette_score', 15, 14)->nullable();
+            $table->decimal('davies_bouldin_index', 15, 14)->nullable();
 
             // Jenis filter clustering (misal: makanan_berat, minuman, dll)
             $table->string('filter');

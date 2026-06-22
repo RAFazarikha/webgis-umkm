@@ -12,9 +12,9 @@
             <div class="mb-4">
                 <label class="block text-sm mb-1">Kategori Wilayah</label>
                 <select name="kategori_wilayah" class="w-full border border-gray-200 shadow-sm rounded-lg p-2">
-                    <option value="daratan_utama" selected>Daratan Utama</option>
+                    <option value="daratan_utama">Daratan Utama</option>
                     <option value="kepulauan">Kepulauan</option>
-                    <option value="">Semua Wilayah</option>
+                    <option value="" selected>Semua Wilayah</option>
                 </select>
             </div>
 
@@ -79,7 +79,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <input type="number" name="k_start" placeholder="K Min" step="1" value="3"
                         class="w-full border border-gray-200 shadow-sm rounded-lg p-2">
-                    <input type="number" name="k_end" placeholder="K Max" step="1" value="6"
+                    <input type="number" name="k_end" placeholder="K Max" step="1" value="5"
                         class="w-full border border-gray-200 shadow-sm rounded-lg p-2">
                 </div>
             </div>

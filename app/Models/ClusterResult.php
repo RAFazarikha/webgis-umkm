@@ -17,7 +17,7 @@ class ClusterResult extends Model
         'is_noise',
         'eps',
         'min_samples',
-        'silhouette_score',
+        'davies_bouldin_index',
         'filter',
     ];
 
