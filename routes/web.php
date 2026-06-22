@@ -39,6 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/admin/umkm/k-distance', [UmkmController::class, 'kDistance'])->name('umkm.k-distance');
 
             Route::get('/admin/umkm/cluster-results', [UmkmController::class, 'clusterResults'])->name('umkm.cluster-results');
+
+            Route::get('/admin/umkm/export', [UmkmController::class, 'exportCsv'])->name('umkm.export');
         });
 });
 
