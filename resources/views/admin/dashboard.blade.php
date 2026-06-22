@@ -173,7 +173,7 @@
                     <thead class="bg-gray-100">
                         <tr class="text-center text-sm text-[#111827] font-semibold border-b">
                             <th class="px-4 py-3 border-r">K (MinPts)</th>
-                            <th class="px-4 py-3 border-r">EPS Elbow (km)</th>
+                            <th class="px-4 py-3 border-r">EPS Terbaik (km)</th>
                             <th class="px-4 py-3 border-r">Titik Belok</th>
                             <th class="px-4 py-3 border-r">Cluster</th>
                             <th class="px-4 py-3 border-r">Core/Border</th>
@@ -194,7 +194,15 @@
                                     {{ $row['parameter_k'] }}
                                 </td>
                                 <td class="px-4 py-3 border-r text-center font-bold">
-                                    @if (isset($row['rekomendasi_epsilon_km']))
+                                    @if (isset($evalOptimal['eps_km_digunakan']))
+                                        <span class="text-[#F59E0B]">{{ $evalOptimal['eps_km_digunakan'] }}</span>
+
+                                        {{-- Opsional: Menampilkan EPS Elbow asli di bawahnya sebagai perbandingan dengan ukuran kecil --}}
+                                        @if ($evalOptimal['eps_km_digunakan'] != $row['rekomendasi_epsilon_km'])
+                                            <br><span class="text-[10px] text-gray-400 font-normal">Elbow:
+                                                {{ $row['rekomendasi_epsilon_km'] }}</span>
+                                        @endif
+                                    @elseif(isset($row['rekomendasi_epsilon_km']))
                                         <span class="text-[#F59E0B]">{{ $row['rekomendasi_epsilon_km'] }}</span>
                                     @else
                                         <span class="text-red-500 text-xs font-normal">
