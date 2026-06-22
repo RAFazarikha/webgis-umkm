@@ -193,8 +193,14 @@
                                 <td class="px-4 py-3 border-r font-medium text-center">
                                     {{ $row['parameter_k'] }}
                                 </td>
-                                <td class="px-4 py-3 border-r text-center text-[#F59E0B] font-bold">
-                                    {{ isset($row['rekomendasi_epsilon_km']) ? $row['rekomendasi_epsilon_km'] : 'Error' }}
+                                <td class="px-4 py-3 border-r text-center font-bold">
+                                    @if (isset($row['rekomendasi_epsilon_km']))
+                                        <span class="text-[#F59E0B]">{{ $row['rekomendasi_epsilon_km'] }}</span>
+                                    @else
+                                        <span class="text-red-500 text-xs font-normal">
+                                            Error: {{ $row['error'] ?? 'Unknown Exception' }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-4 py-3 border-r text-center text-gray-500">
                                     {{ $row['indeks_elbow'] ?? '-' }}
